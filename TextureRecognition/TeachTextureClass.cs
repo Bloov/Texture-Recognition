@@ -33,7 +33,7 @@ namespace TextureRecognition
             imageUrls = new List<string>();
             images = new Dictionary<string, Image>();
             imageList = new ImageList();
-            imageList.ImageSize = new System.Drawing.Size(48, 48);
+            imageList.ImageSize = new System.Drawing.Size(50, 50);
             imageList.ColorDepth = ColorDepth.Depth16Bit;
             lwImages.LargeImageList = imageList;
 
@@ -68,7 +68,9 @@ namespace TextureRecognition
                 images.Add(key, image);
                 imageUrls.Add(file);
                 imageList.Images.Add(key, image);
-                lwImages.Items.Add(key, key).ToolTipText = file;
+                var item = lwImages.Items.Add(key, key);
+                item.ToolTipText = file;
+                item.Group = lwImages.Groups["lvgKnownSamples"];
             }
         }
 
@@ -109,6 +111,7 @@ namespace TextureRecognition
         {
             Hide();
             ManageTextureClasses.Instance.Show();
+            ManageTextureClasses.Instance.UpdateColor();
         }
 
         private void btnSelectFiles_Click(object sender, EventArgs e)
@@ -135,6 +138,7 @@ namespace TextureRecognition
                     imageUrls.Add(file);
                     imageList.Images.Add(key, image);
                     var item = lwImages.Items.Add(key, key);
+                    item.Group = lwImages.Groups["lvgUnknownSamples"];
                     item.ToolTipText = file;
                     item.ForeColor = Color.Red;
                 }
@@ -220,10 +224,13 @@ namespace TextureRecognition
                             btnTeachingControl.Enabled = true;
                             tsmiClose.Enabled = true;
                             tsmiExit.Enabled = true;
+                            tsmiNext.Enabled = true;
+                            tsmiPrev.Enabled = true;
 
                             foreach (ListViewItem item in lwImages.Items)
                             {
                                 item.ForeColor = Color.Black;
+                                item.Group = lwImages.Groups["lvgKnownSamples"];
                             }
                         }));
         }
@@ -237,9 +244,40 @@ namespace TextureRecognition
             btnTeachingControl.Enabled = false;
             tsmiClose.Enabled = false;
             tsmiExit.Enabled = false;
+            tsmiNext.Enabled = false;
+            tsmiPrev.Enabled = false;
 
             workClass.Teach(imageUrls);
             ThreadPool.QueueUserWorkItem(new WaitCallback(MonitorTeaching));
+        }
+
+        private void tsmiClass_Click(object sender, EventArgs e)
+        {
+            if (colorDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                workClass.RegionColor = colorDialog.Color;
+                UpdateClassColor();
+            }
+        }
+
+        private void tsmiPrev_Click(object sender, EventArgs e)
+        {
+            var index = recognition.Core.GetTextureClassIndex(workClass);
+            var newClass = recognition.Core.GetTextureClass(index - 1);
+            if (newClass != null)
+            {
+                SetTextureClass(newClass.Name);
+            }
+        }
+
+        private void tsmiNext_Click(object sender, EventArgs e)
+        {
+            var index = recognition.Core.GetTextureClassIndex(workClass);
+            var newClass = recognition.Core.GetTextureClass(index + 1);
+            if (newClass != null)
+            {
+                SetTextureClass(newClass.Name);
+            }
         }
     }
 }

@@ -8,18 +8,18 @@ namespace ImageRecognition
 {
     public class SubImageSample
     {
-        public SubImageSample(SimpleImage sample)
+        public SubImageSample(ImageGrayData imageData)
         {
-            Sample = sample;
+            Sample = imageData;
 
-            GLCMCreator glcm = new GLCMCreator(sample, true);
+            GLCMCreator glcm = new GLCMCreator(imageData, false);
             GLCM = glcm.Feature;
 
-            LBPCreator lbp = new LBPCreator(sample, true);
+            LBPCreator lbp = new LBPCreator(imageData, false);
             LBP = lbp.Feature;
         }
 
-        public SimpleImage Sample
+        public ImageGrayData Sample
         {
             get;
             set;

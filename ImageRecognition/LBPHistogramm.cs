@@ -117,20 +117,21 @@ namespace ImageRecognition
         byte[,] data;
         int width, height;
         LBPFeature feature;
-        bool oneFragment;
+        bool filterRejects;
         
-        public LBPCreator(SimpleImage image, bool oneFragment = false)
+        public LBPCreator(ImageGrayData imageData, bool filterRejects = false)
         {
-            if ((image.Width < RecognitionParameters.FragmentsSize) || (image.Height < RecognitionParameters.FragmentsSize))
+            if ((imageData.Width < RecognitionParameters.FragmentsSize) || 
+                (imageData.Height < RecognitionParameters.FragmentsSize))
             {
                 throw new ArgumentException("Изображение слишком мало");
             }
 
-            data = image.GetGrayData();
-            width = image.Width;
-            height = image.Height;
+            data = imageData.Data;
+            width = imageData.Width;
+            height = imageData.Height;
             
-            this.oneFragment = oneFragment;
+            this.filterRejects = filterRejects;
             feature = null;
             ConstructFeature();
         }
@@ -138,7 +139,7 @@ namespace ImageRecognition
         private void ConstructFeature()
         {
             var list = GetSubfeatures();
-            if (oneFragment)
+            if (!filterRejects)
             {
                 feature = LBPFeature.BuildStandart(list);
             }
@@ -152,7 +153,6 @@ namespace ImageRecognition
         private List<LBPFeature> GetSubfeatures()
         {
             var fragments = GetFragments();
-
             int threadCount = Math.Min(fragments.Count, RecognitionParameters.FragmentProcessThreadCount);
             int threadPart = fragments.Count / threadCount;
             var resetEvents = new ManualResetEvent[threadCount];
@@ -408,7 +408,8 @@ namespace ImageRecognition
             var average = GetAverageDistance(list, standart);
             var deviation = GetDeviationDistance(list, standart, average);
             var goodfeatures = new List<LBPFeature>();
-            var studentTTest = alglib.studenttdistr.studenttdistribution(list.Count - 1, 0.4);
+            var studentTTest = alglib.studenttdistr.studenttdistribution(
+                list.Count - 1, RecognitionParameters.RejectSignificanceLevel);
             for (int i = 0; i < list.Count; ++i)
             {
                 var distance = list[i].GetDistance(standart);

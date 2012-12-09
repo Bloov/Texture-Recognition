@@ -114,7 +114,7 @@ namespace ImageRecognition
             var image = new SimpleImage(imageUrl);
             recognitionProgress = 0.05;
             
-            var result = image.SourceImage;
+            var result = image.Image;
             List<Rectangle> sampleRegions = new List<Rectangle>();
             List<SubImageSample> samples = new List<SubImageSample>();
             
@@ -145,11 +145,11 @@ namespace ImageRecognition
             var image = new SimpleImage(imageUrl);
             recognitionProgress = 0.33;
             answer = "";
-            var result = new Bitmap(image.SourceImage);
-            var subImage = image.GetSubImage(
+            var result = new Bitmap(image.Image);
+            var imageData = image.GetGrayData(
                 region.X, region.Y, 
                 region.X + region.Width, region.Y + region.Height);
-            var sample = new SubImageSample(subImage);
+            var sample = new SubImageSample(imageData);
             var render = Graphics.FromImage(result);
             recognitionProgress = 0.66;
             var match = GetBestMatch(sample, usedFeatures);
@@ -210,8 +210,8 @@ namespace ImageRecognition
                     int fromY = y * fragmentSize;
                     int toX = fromX + fragmentSize;
                     int toY = fromY + fragmentSize;
-                    var subImage = image.GetSubImage(fromX, fromY, toX, toY);
-                    var sample = new SubImageSample(subImage);
+                    var imageData = image.GetGrayData(fromX, fromY, toX, toY);
+                    var sample = new SubImageSample(imageData);
                     lock ((regions as ICollection).SyncRoot)
                     {
                         regions.Add(new Rectangle(fromX, fromY, fragmentSize, fragmentSize));
@@ -247,8 +247,8 @@ namespace ImageRecognition
                     int fromY = image.Height - fragmentSize;
                     int toX = fromX + fragmentSize;
                     int toY = image.Height;
-                    var subImage = image.GetSubImage(fromX, fromY, toX, toY);
-                    var sample = new SubImageSample(subImage);
+                    var imageData = image.GetGrayData(fromX, fromY, toX, toY);
+                    var sample = new SubImageSample(imageData);
                     lock ((regions as ICollection).SyncRoot)
                     {
                         regions.Add(new Rectangle(fromX, fromY, fragmentSize, fragmentSize));
@@ -265,8 +265,8 @@ namespace ImageRecognition
                     int fromY = y * fragmentSize;
                     int toX = image.Width;
                     int toY = fromY + fragmentSize;
-                    var subImage = image.GetSubImage(fromX, fromY, toX, toY);
-                    var sample = new SubImageSample(subImage);
+                    var imageData = image.GetGrayData(fromX, fromY, toX, toY);
+                    var sample = new SubImageSample(imageData);
                     lock ((regions as ICollection).SyncRoot)
                     {
                         regions.Add(new Rectangle(fromX, fromY, fragmentSize, fragmentSize));
@@ -281,8 +281,8 @@ namespace ImageRecognition
                 int fromY = image.Height - fragmentSize;
                 int toX = image.Width;
                 int toY = image.Height;
-                var subImage = image.GetSubImage(fromX, fromY, toX, toY);
-                var sample = new SubImageSample(subImage);
+                var imageData = image.GetGrayData(fromX, fromY, toX, toY);
+                var sample = new SubImageSample(imageData);
                 lock ((regions as ICollection).SyncRoot)
                 {
                     regions.Add(new Rectangle(fromX, fromY, fragmentSize, fragmentSize));
@@ -451,11 +451,16 @@ namespace ImageRecognition
 
         public TextureClass GetTextureClass(int index)
         {
-            if ((index < 0) || (index > knownClasses.Count))
+            if ((index < 0) || (index >= knownClasses.Count))
             {
                 return null;
             }
             return knownClasses[index];
+        }
+
+        public int GetTextureClassIndex(TextureClass textureClass)
+        {
+            return knownClasses.IndexOf(textureClass);
         }
 
         public int TextureClassCount

@@ -46,6 +46,8 @@
             this.pbImage = new System.Windows.Forms.PictureBox();
             this.openImageDialog = new System.Windows.Forms.OpenFileDialog();
             this.pbProgress = new System.Windows.Forms.ProgressBar();
+            this.tsmiSaveResult = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveImageDialog = new System.Windows.Forms.SaveFileDialog();
             this.msMenu.SuspendLayout();
             this.panelParameters.SuspendLayout();
             this.gbRecognitionWays.SuspendLayout();
@@ -58,10 +60,11 @@
             this.msMenu.ImageScalingSize = new System.Drawing.Size(32, 32);
             this.msMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsmiBack,
-            this.tsmiClose});
+            this.tsmiClose,
+            this.tsmiSaveResult});
             this.msMenu.Location = new System.Drawing.Point(0, 0);
             this.msMenu.Name = "msMenu";
-            this.msMenu.Size = new System.Drawing.Size(534, 40);
+            this.msMenu.Size = new System.Drawing.Size(723, 40);
             this.msMenu.TabIndex = 0;
             // 
             // tsmiBack
@@ -254,7 +257,7 @@
             this.pbImage.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pbImage.Location = new System.Drawing.Point(197, 43);
             this.pbImage.Name = "pbImage";
-            this.pbImage.Size = new System.Drawing.Size(325, 391);
+            this.pbImage.Size = new System.Drawing.Size(514, 391);
             this.pbImage.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pbImage.TabIndex = 4;
             this.pbImage.TabStop = false;
@@ -274,15 +277,30 @@
             this.pbProgress.Location = new System.Drawing.Point(12, 440);
             this.pbProgress.Maximum = 1000;
             this.pbProgress.Name = "pbProgress";
-            this.pbProgress.Size = new System.Drawing.Size(510, 15);
+            this.pbProgress.Size = new System.Drawing.Size(699, 15);
             this.pbProgress.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
             this.pbProgress.TabIndex = 5;
+            // 
+            // tsmiSaveResult
+            // 
+            this.tsmiSaveResult.Font = new System.Drawing.Font("Segoe UI", 14F);
+            this.tsmiSaveResult.Image = global::TextureRecognition.resources.save;
+            this.tsmiSaveResult.Name = "tsmiSaveResult";
+            this.tsmiSaveResult.Size = new System.Drawing.Size(149, 36);
+            this.tsmiSaveResult.Text = "Сохранить";
+            this.tsmiSaveResult.Click += new System.EventHandler(this.tsmiSaveResult_Click);
+            // 
+            // saveImageDialog
+            // 
+            this.saveImageDialog.DefaultExt = "*.jpg";
+            this.saveImageDialog.Filter = "All Images|*.jpg;*.jpeg;*.png;*.bmp|JPG Image|*.jpg;*.jpeg|PNG Image|*.png|BMP Im" +
+    "age|*.bmp";
             // 
             // RecognizeImage
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(534, 467);
+            this.ClientSize = new System.Drawing.Size(723, 467);
             this.Controls.Add(this.pbProgress);
             this.Controls.Add(this.pbImage);
             this.Controls.Add(this.btnRecognize);
@@ -327,5 +345,7 @@
         private System.Windows.Forms.ProgressBar pbProgress;
         private System.Windows.Forms.CheckBox cbShowLegend;
         private System.Windows.Forms.CheckBox cbFeature3;
+        private System.Windows.Forms.ToolStripMenuItem tsmiSaveResult;
+        private System.Windows.Forms.SaveFileDialog saveImageDialog;
     }
 }

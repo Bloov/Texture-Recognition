@@ -11,17 +11,17 @@ namespace ImageRecognition
 {
     public sealed class GLCMFeature
     {
-        internal double[] sourceData;
+        internal double[] source;
         private double[] feature;
 
         internal GLCMFeature(double[] data)
         {
-            sourceData = data;
+            source = data;
             feature = new double[8];
             for (int i = 0; i < 4; ++i)
             {
-                feature[i * 2] = MathHelpers.GetAverage(sourceData, i * 4, 4);
-                feature[i * 2 + 1] = Math.Sqrt(MathHelpers.GetVariance(sourceData, feature[i * 2], i * 4, 4));
+                feature[i * 2] = MathHelpers.GetAverage(source, i * 4, 4);
+                feature[i * 2 + 1] = Math.Sqrt(MathHelpers.GetVariance(source, feature[i * 2], i * 4, 4));
             }
         }
 
@@ -55,7 +55,7 @@ namespace ImageRecognition
             {
                 for (int j = 0; j < 16; ++j)
                 {
-                    data[j] += list[i].sourceData[j];
+                    data[j] += list[i].source[j];
                 }
             }
             for (int j = 0; j < 16; ++j)
@@ -68,60 +68,44 @@ namespace ImageRecognition
 
     internal class GLCMThreadParameter
     {
-        private ManualResetEvent resetEvent;
-        private int from;
-        private int to;
-        private List<byte[]> fragments;
-        private List<GLCMFeature> result;
-
         public GLCMThreadParameter(int from, int to, List<byte[]> fragments, ManualResetEvent resetEvent)
         {
-            this.resetEvent = resetEvent;
-            this.from = from;
-            this.to = to;
-            this.fragments = fragments;
-            result = new List<GLCMFeature>();
+            ResetEvent = resetEvent;
+            From = from;
+            To = to;
+            Fragments = fragments;
+            Result = new List<GLCMFeature>();
         }
 
         public int From
         {
-            get
-            {
-                return from;
-            }
+            get;
+            set;
         }
 
         public int To
         {
-            get
-            {
-                return to;
-            }
+            get;
+            set;
         }
 
-        public List<byte[]> Data
+        public List<byte[]> Fragments
         {
-            get
-            {
-                return fragments;
-            }
+            get;
+            set;
 
         }
 
         public List<GLCMFeature> Result
         {
-            get
-            {
-                return result;
-            }
+            get;
+            set;
         }
 
         public ManualResetEvent ResetEvent
         {
-            get
-            {
-                return resetEvent;
-            }
+            get;
+            set;
         }
     }
 
@@ -130,27 +114,28 @@ namespace ImageRecognition
         private byte[] data;
         private GLCMFeature feature;
         private int width, height;
-        private bool oneFragment;
+        private bool filterRejects;
 
-        public GLCMCreator(SimpleImage image, bool oneFragment = false)
+        public GLCMCreator(ImageGrayData imageData, bool filterRejects = false)
         {
-            if ((image.Width < RecognitionParameters.FragmentsSize) || (image.Height < RecognitionParameters.FragmentsSize))
+            if ((imageData.Width < RecognitionParameters.FragmentsSize) || 
+                (imageData.Height < RecognitionParameters.FragmentsSize))
             {
                 throw new ArgumentException("Изображение слишком мало");
             }
 
-            this.oneFragment = oneFragment;
+            this.filterRejects = filterRejects;
             feature = null;
-            PrepareData(image);
+            PrepareData(imageData);
             ConstructFeature();
         }
 
-        private void PrepareData(SimpleImage image)
+        private void PrepareData(ImageGrayData imageData)
         {
-            width = image.Width;
-            height = image.Height;
+            width = imageData.Width;
+            height = imageData.Height;
             data = new byte[width * height];
-            var grayData = image.GetGrayData();
+            var grayData = imageData.Data;
             int quantizers = 256 / RecognitionParameters.GLCMSize;
             for (int y = 0; y < height; ++y)
             {
@@ -165,7 +150,7 @@ namespace ImageRecognition
         private void ConstructFeature()
         {
             var list = GetSubfeatures();
-            if (oneFragment)
+            if (!filterRejects)
             {
                 feature = GLCMFeature.BuildStandart(list);
             }
@@ -179,7 +164,6 @@ namespace ImageRecognition
         private List<GLCMFeature> GetSubfeatures()
         {
             var fragments = GetFragments();
-
             int threadCount = Math.Min(fragments.Count, RecognitionParameters.FragmentProcessThreadCount);
             int threadPart = fragments.Count / threadCount;
             var resetEvents = new ManualResetEvent[threadCount];
@@ -260,10 +244,8 @@ namespace ImageRecognition
 
         private byte[] GetFragment(int fromX, int fromY, int toX, int toY)
         {
-            byte[] result = new byte[(toX - fromX) * (toY - fromY) + 2];
-            result[0] = (byte)(toX - fromX);
-            result[1] = (byte)(toY - fromY);
-            int index = 2;
+            byte[] result = new byte[(toX - fromX) * (toY - fromY)];
+            int index = 0;
             for (int y = fromY; y < toY; ++y)
             {
                 int offset = y * width;
@@ -286,7 +268,7 @@ namespace ImageRecognition
 
             for (int i = data.From; i < data.To; ++i)
             {
-                var feature = GetGLCMFeature(data.Data[i]);
+                var feature = GetGLCMFeature(data.Fragments[i]);
                 data.Result.Add(feature);
             }
             data.ResetEvent.Set();
@@ -316,8 +298,8 @@ namespace ImageRecognition
         private List<double[,]> GetGLCMList(int dx, int dy, byte[] fragment)
         {
             var result = new List<double[,]>();
-            int fwidth = fragment[0];
-            int fheight = fragment[1];
+            int fwidth = RecognitionParameters.FragmentsSize;
+            int fheight = fwidth;
             for (int i = 1; i < RecognitionParameters.GLCMMaxDisplacementDistance; ++i)
             {
                 var glcm = new double[RecognitionParameters.GLCMSize, RecognitionParameters.GLCMSize];
@@ -325,7 +307,8 @@ namespace ImageRecognition
                 {
                     for (int x = 0; x < fwidth; ++x)
                     {
-                        int nx = x + dx * i, ny = y + dy * i;
+                        int nx = x + dx * i;
+                        int ny = y + dy * i;
                         if (IsInFragment(nx, ny, fwidth, fheight))
                         {
                             int from = fragment[GetIndexInFragment(x, y, fwidth)];
@@ -347,7 +330,7 @@ namespace ImageRecognition
 
         private int GetIndexInFragment(int x, int y, int fwidth)
         {
-            return y * fwidth + x + 2;
+            return y * fwidth + x;
         }
 
         private void NormalizeGLCM(double[,] glcm, int dx, int dy)
@@ -355,9 +338,10 @@ namespace ImageRecognition
             double factor = (RecognitionParameters.FragmentsSize - dx) * 
                 (RecognitionParameters.FragmentsSize - dy);
             factor = 1 / factor;
-            for (int y = 0; y < 16; ++y)
+            var size = RecognitionParameters.GLCMSize;
+            for (int y = 0; y < size; ++y)
             {
-                for (int x = 0; x < 16; ++x)
+                for (int x = 0; x < size; ++x)
                 {
                     glcm[x, y] *= factor;
                 }
@@ -370,9 +354,10 @@ namespace ImageRecognition
             double contrast = 0;
             double energy = 0;
             double entropy = 0;
-            for (int y = 0; y < 16; ++y)
+            var size = RecognitionParameters.GLCMSize;
+            for (int y = 0; y < size; ++y)
             {
-                for (int x = 0; x < 16; ++x)
+                for (int x = 0; x < size; ++x)
                 {
                     homogeneity += glcm[x, y] / (1 + Math.Abs(x - y));
                     contrast += MathHelpers.Sqr(x - y) * glcm[x, y];
@@ -409,7 +394,8 @@ namespace ImageRecognition
             var average = GetAverageDistance(list, standart);
             var deviation = GetDeviationDistance(list, standart, average);
             var goodfeatures = new List<GLCMFeature>();
-            var studentTTest = alglib.studenttdistr.studenttdistribution(list.Count - 1, 0.16);
+            var studentTTest = alglib.studenttdistr.studenttdistribution(
+                list.Count - 1, RecognitionParameters.RejectSignificanceLevel);
             for (int i = 0; i < list.Count; ++i)
             {
                 var distance = list[i].GetDistance(standart);

@@ -28,19 +28,29 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.Windows.Forms.ListViewGroup listViewGroup3 = new System.Windows.Forms.ListViewGroup("Известные образцы", System.Windows.Forms.HorizontalAlignment.Left);
+            System.Windows.Forms.ListViewGroup listViewGroup4 = new System.Windows.Forms.ListViewGroup("Неизвестные образцы", System.Windows.Forms.HorizontalAlignment.Left);
             this.msMenu = new System.Windows.Forms.MenuStrip();
             this.tsmiClose = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiExit = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiClass = new System.Windows.Forms.ToolStripMenuItem();
             this.openImagesDialog = new System.Windows.Forms.OpenFileDialog();
-            this.lwImages = new System.Windows.Forms.ListView();
             this.pbTeach = new System.Windows.Forms.ProgressBar();
             this.btnTeachingControl = new System.Windows.Forms.Button();
             this.btnDeleteAll = new System.Windows.Forms.Button();
             this.btnDeleteSelected = new System.Windows.Forms.Button();
-            this.pbImage = new System.Windows.Forms.PictureBox();
             this.btnSelectFiles = new System.Windows.Forms.Button();
+            this.colorDialog = new System.Windows.Forms.ColorDialog();
+            this.tsmiPrev = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiNext = new System.Windows.Forms.ToolStripMenuItem();
+            this.splitContainer = new System.Windows.Forms.SplitContainer();
+            this.lwImages = new System.Windows.Forms.ListView();
+            this.pbImage = new System.Windows.Forms.PictureBox();
             this.msMenu.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
+            this.splitContainer.Panel1.SuspendLayout();
+            this.splitContainer.Panel2.SuspendLayout();
+            this.splitContainer.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbImage)).BeginInit();
             this.SuspendLayout();
             // 
@@ -50,7 +60,9 @@
             this.msMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsmiClose,
             this.tsmiExit,
-            this.tsmiClass});
+            this.tsmiPrev,
+            this.tsmiClass,
+            this.tsmiNext});
             this.msMenu.Location = new System.Drawing.Point(0, 0);
             this.msMenu.Name = "msMenu";
             this.msMenu.Size = new System.Drawing.Size(608, 40);
@@ -82,25 +94,13 @@
             this.tsmiClass.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.tsmiClass.Size = new System.Drawing.Size(51, 36);
             this.tsmiClass.Text = "Класс";
+            this.tsmiClass.Click += new System.EventHandler(this.tsmiClass_Click);
             // 
             // openImagesDialog
             // 
             this.openImagesDialog.Filter = "All Images|*.jpg;*.jpeg;*.png;*.bmp|JPG Image|*.jpg;*.jpeg|PNG Image|*.png|BMP Im" +
     "age|*.bmp";
             this.openImagesDialog.Multiselect = true;
-            // 
-            // lwImages
-            // 
-            this.lwImages.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
-            this.lwImages.BackColor = System.Drawing.SystemColors.Control;
-            this.lwImages.Location = new System.Drawing.Point(12, 103);
-            this.lwImages.Name = "lwImages";
-            this.lwImages.Size = new System.Drawing.Size(302, 262);
-            this.lwImages.TabIndex = 2;
-            this.lwImages.TileSize = new System.Drawing.Size(168, 60);
-            this.lwImages.UseCompatibleStateImageBehavior = false;
-            this.lwImages.SelectedIndexChanged += new System.EventHandler(this.lwImages_SelectedIndexChanged);
             // 
             // pbTeach
             // 
@@ -157,19 +157,6 @@
             this.btnDeleteSelected.UseVisualStyleBackColor = true;
             this.btnDeleteSelected.Click += new System.EventHandler(this.btnDeleteSelected_Click);
             // 
-            // pbImage
-            // 
-            this.pbImage.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.pbImage.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.pbImage.Location = new System.Drawing.Point(320, 103);
-            this.pbImage.Name = "pbImage";
-            this.pbImage.Size = new System.Drawing.Size(276, 262);
-            this.pbImage.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.pbImage.TabIndex = 3;
-            this.pbImage.TabStop = false;
-            // 
             // btnSelectFiles
             // 
             this.btnSelectFiles.AutoSize = true;
@@ -185,17 +172,91 @@
             this.btnSelectFiles.UseVisualStyleBackColor = true;
             this.btnSelectFiles.Click += new System.EventHandler(this.btnSelectFiles_Click);
             // 
+            // tsmiPrev
+            // 
+            this.tsmiPrev.AutoToolTip = true;
+            this.tsmiPrev.Image = global::TextureRecognition.resources.back;
+            this.tsmiPrev.Margin = new System.Windows.Forms.Padding(20, 0, 0, 0);
+            this.tsmiPrev.Name = "tsmiPrev";
+            this.tsmiPrev.Size = new System.Drawing.Size(44, 36);
+            this.tsmiPrev.ToolTipText = "Перейти к предыдущему классу";
+            this.tsmiPrev.Click += new System.EventHandler(this.tsmiPrev_Click);
+            // 
+            // tsmiNext
+            // 
+            this.tsmiNext.AutoToolTip = true;
+            this.tsmiNext.Image = global::TextureRecognition.resources.next;
+            this.tsmiNext.Name = "tsmiNext";
+            this.tsmiNext.Size = new System.Drawing.Size(44, 36);
+            this.tsmiNext.ToolTipText = "Перейти к следующему классу";
+            this.tsmiNext.Click += new System.EventHandler(this.tsmiNext_Click);
+            // 
+            // splitContainer
+            // 
+            this.splitContainer.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.splitContainer.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.splitContainer.Location = new System.Drawing.Point(12, 103);
+            this.splitContainer.Name = "splitContainer";
+            // 
+            // splitContainer.Panel1
+            // 
+            this.splitContainer.Panel1.Controls.Add(this.lwImages);
+            this.splitContainer.Panel1MinSize = 100;
+            // 
+            // splitContainer.Panel2
+            // 
+            this.splitContainer.Panel2.Controls.Add(this.pbImage);
+            this.splitContainer.Panel2MinSize = 100;
+            this.splitContainer.Size = new System.Drawing.Size(584, 262);
+            this.splitContainer.SplitterDistance = 371;
+            this.splitContainer.SplitterWidth = 6;
+            this.splitContainer.TabIndex = 8;
+            // 
+            // lwImages
+            // 
+            this.lwImages.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lwImages.BackColor = System.Drawing.SystemColors.Control;
+            this.lwImages.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            listViewGroup3.Header = "Известные образцы";
+            listViewGroup3.Name = "lvgKnownSamples";
+            listViewGroup4.Header = "Неизвестные образцы";
+            listViewGroup4.Name = "lvgUnknownSamples";
+            this.lwImages.Groups.AddRange(new System.Windows.Forms.ListViewGroup[] {
+            listViewGroup3,
+            listViewGroup4});
+            this.lwImages.Location = new System.Drawing.Point(3, 3);
+            this.lwImages.Name = "lwImages";
+            this.lwImages.Size = new System.Drawing.Size(363, 254);
+            this.lwImages.TabIndex = 3;
+            this.lwImages.TileSize = new System.Drawing.Size(168, 60);
+            this.lwImages.UseCompatibleStateImageBehavior = false;
+            this.lwImages.SelectedIndexChanged += new System.EventHandler(this.lwImages_SelectedIndexChanged);
+            // 
+            // pbImage
+            // 
+            this.pbImage.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pbImage.Location = new System.Drawing.Point(0, 0);
+            this.pbImage.Margin = new System.Windows.Forms.Padding(0);
+            this.pbImage.Name = "pbImage";
+            this.pbImage.Size = new System.Drawing.Size(205, 260);
+            this.pbImage.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pbImage.TabIndex = 2;
+            this.pbImage.TabStop = false;
+            // 
             // TeachTextureClass
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(608, 398);
+            this.Controls.Add(this.splitContainer);
             this.Controls.Add(this.btnTeachingControl);
             this.Controls.Add(this.pbTeach);
             this.Controls.Add(this.btnDeleteAll);
             this.Controls.Add(this.btnDeleteSelected);
-            this.Controls.Add(this.pbImage);
-            this.Controls.Add(this.lwImages);
             this.Controls.Add(this.btnSelectFiles);
             this.Controls.Add(this.msMenu);
             this.MainMenuStrip = this.msMenu;
@@ -204,6 +265,10 @@
             this.Text = "Обучение класса текстур";
             this.msMenu.ResumeLayout(false);
             this.msMenu.PerformLayout();
+            this.splitContainer.Panel1.ResumeLayout(false);
+            this.splitContainer.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).EndInit();
+            this.splitContainer.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pbImage)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -216,13 +281,17 @@
         private System.Windows.Forms.ToolStripMenuItem tsmiClose;
         private System.Windows.Forms.OpenFileDialog openImagesDialog;
         private System.Windows.Forms.Button btnSelectFiles;
-        private System.Windows.Forms.ListView lwImages;
-        private System.Windows.Forms.PictureBox pbImage;
         private System.Windows.Forms.Button btnDeleteSelected;
         private System.Windows.Forms.Button btnDeleteAll;
         private System.Windows.Forms.ProgressBar pbTeach;
         private System.Windows.Forms.Button btnTeachingControl;
         private System.Windows.Forms.ToolStripMenuItem tsmiExit;
         private System.Windows.Forms.ToolStripMenuItem tsmiClass;
+        private System.Windows.Forms.ColorDialog colorDialog;
+        private System.Windows.Forms.ToolStripMenuItem tsmiPrev;
+        private System.Windows.Forms.ToolStripMenuItem tsmiNext;
+        private System.Windows.Forms.SplitContainer splitContainer;
+        private System.Windows.Forms.ListView lwImages;
+        private System.Windows.Forms.PictureBox pbImage;
     }
 }

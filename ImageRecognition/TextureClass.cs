@@ -58,6 +58,7 @@ namespace ImageRecognition
             foreach (var item in urls)
             {
                 SimpleImage image;
+                ImageGrayData imageData;
                 try
                 {
                     if (knownFiles.Exists((string name) => name == item))
@@ -67,6 +68,7 @@ namespace ImageRecognition
                     }
 
                     image = new SimpleImage(item);
+                    imageData = image.GetGrayData();
                     teachProgress += delta;
                 }
                 catch (Exception ex)
@@ -77,8 +79,8 @@ namespace ImageRecognition
 
                 try
                 {
-                    LBPCreator lbp = new LBPCreator(image);
-                    GLCMCreator glcm = new GLCMCreator(image);
+                    LBPCreator lbp = new LBPCreator(imageData);
+                    GLCMCreator glcm = new GLCMCreator(imageData);
                     AddFeatures(glcm.Feature, lbp.Feature, item);
                 }
                 catch (Exception ex)
@@ -140,6 +142,15 @@ namespace ImageRecognition
             return 0;
         }
 
+        public string GetKnownSample(int index)
+        {
+            if ((index < 0) || (index >= knownFiles.Count))
+            {
+                return "";
+            }
+            return knownFiles[index];
+        }
+
         public bool IsTeaching
         {
             get
@@ -174,15 +185,6 @@ namespace ImageRecognition
             {
                 return featuresCount;
             }
-        }
-
-        public string GetKnownSample(int index)
-        {
-            if ((index < 0) || (index >= knownFiles.Count))
-            {
-                return "";
-            }
-            return knownFiles[index];
         }
     }
 }

@@ -11,10 +11,9 @@ namespace ImageRecognition
         static RecognitionParameters()
         {
             NeededNeighborsNumber = 8;
-
             FragmentProcessThreadCount = (byte)Environment.ProcessorCount;
             FragmentsSize = 36;
-
+            RejectSignificanceLevel = 0.4;
             GLCMMaxDisplacementDistance = 12;
             GLCMSize = 16;
         }
@@ -32,6 +31,12 @@ namespace ImageRecognition
         }
 
         public static byte FragmentsSize
+        {
+            get;
+            set;
+        }
+
+        public static double RejectSignificanceLevel
         {
             get;
             set;

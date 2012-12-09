@@ -2,3 +2,4 @@ D:\Знания\Универ\МРО\Курсовой\TextureRecognition\ImagePro
 D:\Знания\Универ\МРО\Курсовой\TextureRecognition\ImageProcessing\bin\Release\ImageProcessing.pdb
 D:\Знания\Универ\МРО\Курсовой\TextureRecognition\ImageProcessing\obj\Release\ImageProcessing.dll
 D:\Знания\Универ\МРО\Курсовой\TextureRecognition\ImageProcessing\obj\Release\ImageProcessing.pdb
+D:\Знания\Универ\МРО\Курсовой\TextureRecognition\ImageProcessing\obj\Release\ImageProcessing.csprojResolveAssemblyReference.cache

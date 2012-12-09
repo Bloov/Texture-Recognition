@@ -61,42 +61,27 @@ namespace ImageProcessing
 
     public class SimpleImage
     {
-        private Bitmap sourceImage;
-        private PixelFormat sourcePixelFormat;
-        int sourceWidth, sourceHeight;
+        private Bitmap image;
+        int width, height;
         private int imageStride;
         private byte[,] grayData;
 
-        public SimpleImage(Image image)
+        public SimpleImage(Image source)
         {
-            sourceImage = new Bitmap(image);
-            sourcePixelFormat = sourceImage.PixelFormat;
-            sourceWidth = sourceImage.Width;
-            sourceHeight = sourceImage.Height;
-            var sourceData = GetImageData(sourceImage, out imageStride);
+            image = new Bitmap(source);
+            width = image.Width;
+            height = image.Height;
+            var sourceData = GetImageData(image, out imageStride);
             grayData = GrayFilter(sourceData, imageStride);
         }
 
         public SimpleImage(string url)
         {
-            sourceImage = new Bitmap(url);
-            sourcePixelFormat = sourceImage.PixelFormat;
-            sourceWidth = sourceImage.Width;
-            sourceHeight = sourceImage.Height;
-            var sourceData = GetImageData(sourceImage, out imageStride);
+            image = new Bitmap(url);
+            width = image.Width;
+            height = image.Height;
+            var sourceData = GetImageData(image, out imageStride);
             grayData = GrayFilter(sourceData, imageStride);
-        }
-
-        private SimpleImage(PixelFormat format, byte[] data, int width, int height)
-        {
-            sourceWidth = width;
-            sourceHeight = height;
-            sourceImage = new Bitmap(width, height, format);
-            sourcePixelFormat = format;
-            var sourceData = GetImageData(sourceImage, out imageStride);
-            CopyGrayDataToData(data, width, height, sourceData, imageStride);
-            CopyDataToImage(sourceData, sourceImage);
-            grayData = ExtractGrayData(data, width, height);
         }
 
         private byte[] GetImageData(Bitmap image, out int stride)
@@ -149,7 +134,7 @@ namespace ImageProcessing
             var grayResult = new byte[Width, Height];
 
             int threadCount = Environment.ProcessorCount;
-            int threadPart = sourceHeight / threadCount;
+            int threadPart = height / threadCount;
             var resetEvents = new ManualResetEvent[threadCount];
             var threadParameters = new GrayFilterThreadParameter[threadCount];
             for (int i = 0; i < threadCount; ++i)
@@ -158,7 +143,7 @@ namespace ImageProcessing
                 threadParameters[i] = new GrayFilterThreadParameter(
                     data, grayResult, stride,
                     threadPart * i,
-                    ((i + 1) < threadCount) ? (threadPart * (i + 1)) : (sourceHeight),
+                    ((i + 1) < threadCount) ? (threadPart * (i + 1)) : (height),
                     resetEvents[i]);
                 ThreadPool.QueueUserWorkItem(new WaitCallback(GrayFilterThread), threadParameters[i]);
             }
@@ -166,40 +151,9 @@ namespace ImageProcessing
             return grayResult;
         }
 
-        private void CopyGrayDataToData(byte[] gdata, int gdataWidth, int gdataHeigth, byte[] data, int dataStride)
-        {
-            int delta = dataStride / gdataWidth;
-            for (int y = 0; y < gdataHeigth; ++y)
-            {
-                int offset = y * dataStride;
-                for (int x = 0; x < gdataWidth; ++x)
-                {
-                    int index = offset + x * delta;
-                    int gindex = y * gdataWidth + x;
-                    data[index] = gdata[gindex];
-                    data[index + 1] = gdata[gindex];
-                    data[index + 2] = gdata[gindex];
-                }
-            }
-        }
-
-        private byte[,] ExtractGrayData(byte[] data, int dataWidth, int dataHeigth)
-        {
-            var result = new byte[dataWidth, dataHeigth];
-            for (int y = 0; y < dataHeigth; ++y)
-            {
-                for (int x = 0; x < dataWidth; ++x)
-                {
-                    int index = y * dataWidth + x;
-                    result[x, y] = data[index];
-                }
-            }
-            return result;
-        }
-
         private byte[,] ExtractGrayData(int fromX, int fromY, int toX, int toY)
         {
-            var result = new byte[toY - fromY, toX - fromX];
+            var result = new byte[toX - fromX, toY - fromY];
             for (int y = fromY; y < toY; ++y)
             {
                 for (int x = fromX; x < toX; ++x)
@@ -210,69 +164,32 @@ namespace ImageProcessing
             return result;
         }
 
-        private byte[] ExctractSubImage(int fromX, int fromY, int toX, int toY)
-        {
-            var result = new byte[(toX - fromX) * (toY - fromY)];
-            int index = 0;
-            for (int y = fromY; y < toY; ++y)
-            {
-                for (int x = fromX; x < toX; ++x)
-                {
-                    result[index] = grayData[x, y];
-                    ++index;
-                }
-            }
-            return result;
-        }
-
-        public SimpleImage GetSubImage(int fromX, int fromY, int toX, int toY)
-        {
-            fromX = (fromX < 0) ? (0) : (fromX);
-            fromY = (fromY < 0) ? (0) : (fromY);
-            int width = ((toX > Width) ? (Width) : (toX)) - fromX;
-            int height = ((toY > Height) ? (Height) : (toY)) - fromY;
-            if ((width <= 0) || (height <= 0))
-            {
-                throw new ArgumentOutOfRangeException("Неправельный размер врагмента");
-            }
-
-            var data = ExctractSubImage(fromX, fromY, fromX + width, fromY + height);
-            return new SimpleImage(sourcePixelFormat, data, width, height);
-        }
-
-        public byte[,] GetGrayData()
-        {
-            var result = new byte[Width, Height];
-            for (int y = 0; y < Height; ++y)
-            {
-                for (int x = 0; x < Width; ++x)
-                {
-                    result[x, y] = grayData[x, y];
-                }
-            }
-            return result;
-        }
-
         public ImageGrayData GetGrayData(int fromX, int fromY, int toX, int toY)
         {
             fromX = (fromX < 0) ? (0) : (fromX);
             fromY = (fromY < 0) ? (0) : (fromY);
-            int width = ((toX > Width) ? (Width) : (toX)) - fromX;
-            int height = ((toY > Height) ? (Height) : (toY)) - fromY;
-            if ((width <= 0) || (height <= 0))
+            int fwidth = ((toX > Width) ? (Width) : (toX)) - fromX;
+            int fheight = ((toY > Height) ? (Height) : (toY)) - fromY;
+            if ((fwidth <= 0) || (fheight <= 0))
             {
                 throw new ArgumentOutOfRangeException("Неправельный размер фрагмента");
             }
 
-            var data = ExtractGrayData(fromX, fromY, fromX + width, fromY + height);
+            var data = ExtractGrayData(fromX, fromY, fromX + fwidth, fromY + fheight);
+            return new ImageGrayData(fwidth, fheight, data);
+        }
+
+        public ImageGrayData GetGrayData()
+        {
+            var data = ExtractGrayData(0, 0, width, height);
             return new ImageGrayData(width, height, data);
         }
 
-        public Bitmap SourceImage
+        public Bitmap Image
         {
             get
             {
-                return sourceImage;
+                return image;
             }
         }
 
@@ -280,7 +197,7 @@ namespace ImageProcessing
         {
             get
             {
-                return sourceWidth;
+                return width;
             }
         }
 
@@ -288,7 +205,7 @@ namespace ImageProcessing
         {
             get
             {
-                return sourceHeight;
+                return height;
             }
         }
     }

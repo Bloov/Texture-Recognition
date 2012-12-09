@@ -51,7 +51,7 @@ namespace TextureRecognition
             }
         }
 
-        private void UpdateColor()
+        public void UpdateColor()
         {
             var render = Graphics.FromImage(colorImage);
             render.FillRectangle(new SolidBrush(regionColor.Color),

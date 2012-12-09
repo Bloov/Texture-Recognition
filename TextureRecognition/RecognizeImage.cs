@@ -321,7 +321,6 @@ namespace TextureRecognition
                 secondPoint = firstPoint;
                 UpdateSelectingImage();
             }
-
         }
 
         private void pbImage_MouseMove(object sender, MouseEventArgs e)
@@ -391,6 +390,38 @@ namespace TextureRecognition
                 {
                     isSelected = false;
                     pbImage.Image = sourceImage;
+                }
+            }
+        }
+
+        private void tsmiSaveResult_Click(object sender, EventArgs e)
+        {
+            if (recognizedImage == null)
+            {
+                MessageBox.Show("Изображение ещё не распознано");
+                return;
+            }
+            if (saveImageDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                var ext = System.IO.Path.GetExtension(saveImageDialog.FileName);
+                switch (ext)
+                {
+                    case ".png":
+                        recognizedImage.Save(saveImageDialog.FileName, System.Drawing.Imaging.ImageFormat.Png);
+                        return;
+
+                    case ".bmp":
+                        recognizedImage.Save(saveImageDialog.FileName, System.Drawing.Imaging.ImageFormat.Bmp);
+                        return;
+
+                    case ".jpg":
+                    case ".jpeg":
+                        recognizedImage.Save(saveImageDialog.FileName, System.Drawing.Imaging.ImageFormat.Jpeg);
+                        return;
+
+                    default:
+                        recognizedImage.Save(saveImageDialog.FileName);
+                        return;
                 }
             }
         }
