@@ -1,0 +1,5 @@
+D:\Знания\Универ\МРО\Курсовой\TextureRecognition\ImageProcessing\bin\Debug\ImageProcessing.dll
+D:\Знания\Универ\МРО\Курсовой\TextureRecognition\ImageProcessing\bin\Debug\ImageProcessing.pdb
+D:\Знания\Универ\МРО\Курсовой\TextureRecognition\ImageProcessing\obj\Debug\ImageProcessing.csprojResolveAssemblyReference.cache
+D:\Знания\Универ\МРО\Курсовой\TextureRecognition\ImageProcessing\obj\Debug\ImageProcessing.dll
+D:\Знания\Универ\МРО\Курсовой\TextureRecognition\ImageProcessing\obj\Debug\ImageProcessing.pdb
