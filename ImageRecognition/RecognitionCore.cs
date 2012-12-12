@@ -106,6 +106,11 @@ namespace ImageRecognition
             knownClasses.RemoveAll((TextureClass item) => item.Name == name);
         }
 
+        public void RemoveAllTextureClasses()
+        {
+            knownClasses.Clear();
+        }
+
         public Image RecognizeImage(string imageUrl, TextureFeatures usedFeatures)
         {
             isRecognizing = true;
@@ -115,10 +120,11 @@ namespace ImageRecognition
             recognitionProgress = 0.05;
             
             var result = image.Image;
-            List<Rectangle> sampleRegions = new List<Rectangle>();
-            List<SubImageSample> samples = new List<SubImageSample>();
+            var regions = new List<Rectangle>();
+            var samples = new List<SubImageSample>();
+            var matches = new List<TextureClass[]>();
             
-            SplitImage(image, samples, sampleRegions);
+            SplitImage(image, samples, regions);
             recognitionProgress = 0.95;
             
             var render = Graphics.FromImage(result);
@@ -129,7 +135,7 @@ namespace ImageRecognition
                 if (match != null)
                 {
                     var color = Color.FromArgb(100, match.RegionColor.R, match.RegionColor.G, match.RegionColor.B);
-                    render.FillRectangle(new SolidBrush(color), sampleRegions[i]); 
+                    render.FillRectangle(new SolidBrush(color), regions[i]); 
                 }
             }
             
@@ -168,7 +174,7 @@ namespace ImageRecognition
         {
             int YCount = image.Height / RecognitionParameters.FragmentsSize;
 
-            int threadCount = Environment.ProcessorCount;
+            int threadCount = Environment.ProcessorCount * 3 / 2;
             int threadPart = YCount / threadCount;
             var resetEvents = new ManualResetEvent[threadCount + 1];
             var threadParameters = new SplitImageThreadParameter[threadCount + 1];
@@ -241,12 +247,12 @@ namespace ImageRecognition
 
             if (XCount * fragmentSize < image.Width)
             {
-                for (int x = 0; x < XCount; ++x)
+                for (int y = 0; y < YCount; ++y)
                 {
-                    int fromX = x * fragmentSize;
-                    int fromY = image.Height - fragmentSize;
-                    int toX = fromX + fragmentSize;
-                    int toY = image.Height;
+                    int fromX = image.Width - fragmentSize;
+                    int fromY = y * fragmentSize;
+                    int toX = image.Width;
+                    int toY = fromY + fragmentSize;
                     var imageData = image.GetGrayData(fromX, fromY, toX, toY);
                     var sample = new SubImageSample(imageData);
                     lock ((regions as ICollection).SyncRoot)
@@ -259,12 +265,12 @@ namespace ImageRecognition
 
             if (YCount * fragmentSize < image.Height)
             {
-                for (int y = 0; y < YCount; ++y)
+                for (int x = 0; x < XCount; ++x)
                 {
-                    int fromX = image.Width - fragmentSize;
-                    int fromY = y * fragmentSize;
-                    int toX = image.Width;
-                    int toY = fromY + fragmentSize;
+                    int fromX = x * fragmentSize;
+                    int fromY = image.Height - fragmentSize;
+                    int toX = fromX + fragmentSize;
+                    int toY = image.Height;
                     var imageData = image.GetGrayData(fromX, fromY, toX, toY);
                     var sample = new SubImageSample(imageData);
                     lock ((regions as ICollection).SyncRoot)
@@ -354,6 +360,14 @@ namespace ImageRecognition
             return null;
         }
 
+        private TextureClass[] GetMatches(SubImageSample sample)
+        {
+            var result = new TextureClass[] {
+                GetBestMatchForFeature(sample, TextureFeatures.GLCM),
+                GetBestMatchForFeature(sample, TextureFeatures.LBP)};
+            return result;
+        }
+
         private TextureClass GetBestMatchForFeature(SubImageSample sample, TextureFeatures feature)
         {
             var distancesList = GetDistancesListForFeature(sample, feature);
@@ -369,6 +383,10 @@ namespace ImageRecognition
                 if (indexesList[bestClass] == knownClasses[bestClass].KnownSamplesNumber)
                 {
                     classesFlags.Add(bestClass);
+                    if (classesFlags.Count == knownClasses.Count)
+                    {
+                        return knownClasses[classesFlags[0]];
+                    }
                 }
                 if (indexesList[bestClass] == RecognitionParameters.NeededNeighborsNumber)
                 //if ((classesList.Count == RecognitionParameters.NeededNeighborsNumber) ||
@@ -437,11 +455,6 @@ namespace ImageRecognition
         private bool IsLBPFeature(TextureFeatures usedFeatures)
         {
             return (usedFeatures & TextureFeatures.LBP) == TextureFeatures.LBP;
-        }
-
-        private bool IsTravellingWavesFeature(TextureFeatures usedFeatures)
-        {
-            return (usedFeatures & TextureFeatures.TravellingWaves) == TextureFeatures.TravellingWaves;
         }
 
         public TextureClass GetTextureClass(string name)

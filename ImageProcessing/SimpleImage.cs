@@ -63,14 +63,14 @@ namespace ImageProcessing
     {
         private Bitmap image;
         int width, height;
-        private int imageStride;
         private byte[,] grayData;
 
-        public SimpleImage(Image source)
+        public SimpleImage(Bitmap source)
         {
-            image = new Bitmap(source);
+            image = source;
             width = image.Width;
             height = image.Height;
+            int imageStride = 0;
             var sourceData = GetImageData(image, out imageStride);
             grayData = GrayFilter(sourceData, imageStride);
         }
@@ -80,6 +80,7 @@ namespace ImageProcessing
             image = new Bitmap(url);
             width = image.Width;
             height = image.Height;
+            int imageStride = 0;
             var sourceData = GetImageData(image, out imageStride);
             grayData = GrayFilter(sourceData, imageStride);
         }
@@ -94,15 +95,6 @@ namespace ImageProcessing
             Marshal.Copy(bitmapData.Scan0, data, 0, data.Length);
             image.UnlockBits(bitmapData);
             return data;
-        }
-
-        private void CopyDataToImage(byte[] data, Bitmap image)
-        {
-            BitmapData bitmapData = image.LockBits(
-                new Rectangle(0, 0, image.Width, image.Height),
-                ImageLockMode.WriteOnly, image.PixelFormat);
-            Marshal.Copy(data, 0, bitmapData.Scan0, bitmapData.Stride * bitmapData.Height);
-            image.UnlockBits(bitmapData);
         }
 
         private void GrayFilterThread(object parameter)
@@ -131,8 +123,7 @@ namespace ImageProcessing
 
         private byte[,] GrayFilter(byte[] data, int stride)
         {
-            var grayResult = new byte[Width, Height];
-
+            var grayResult = new byte[width, height];
             int threadCount = Environment.ProcessorCount;
             int threadPart = height / threadCount;
             var resetEvents = new ManualResetEvent[threadCount];

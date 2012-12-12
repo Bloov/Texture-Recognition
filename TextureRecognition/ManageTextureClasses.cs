@@ -7,7 +7,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Drawing;
 using ImageRecognition;
 
 namespace TextureRecognition
@@ -17,7 +16,7 @@ namespace TextureRecognition
         private const int CP_NOCLOSE_BUTTON = 0x200;
         private static ManageTextureClasses instance;
         private TextureRecognition recognition;
-        private Bitmap colorImage, colorImage2;
+        private Bitmap currentClassImage, newClassImage;
 
         public ManageTextureClasses()
         {
@@ -26,8 +25,8 @@ namespace TextureRecognition
             InitializeComponent();
 
             regionColor.Color = Color.Red;
-            colorImage = new Bitmap(pbColor.Width, pbColor.Height);
-            colorImage2 = new Bitmap(pbColor2.Width, pbColor2.Height);
+            currentClassImage = new Bitmap(pbColor.Width, pbColor.Height);
+            newClassImage = new Bitmap(pbColor2.Width, pbColor2.Height);
             UpdateColor();
 
             recognition = TextureRecognition.Instance;
@@ -51,25 +50,30 @@ namespace TextureRecognition
             }
         }
 
-        public void UpdateColor()
+        private void UpdateColor()
         {
-            var render = Graphics.FromImage(colorImage);
+            var render = Graphics.FromImage(currentClassImage);
             render.FillRectangle(new SolidBrush(regionColor.Color),
                 0, 0, pbColor.Width, pbColor.Height);
-            pbColor.Image = colorImage;
+            pbColor.Image = currentClassImage;
 
             if (cbList.SelectedItem != null)
             {
                 var color = recognition.Core.GetTextureClass(cbList.SelectedItem.ToString()).RegionColor;
-                render = Graphics.FromImage(colorImage2);
+                render = Graphics.FromImage(newClassImage);
                 render.FillRectangle(new SolidBrush(color),
                     0, 0, pbColor2.Width, pbColor2.Height);
-                pbColor2.Image = colorImage2;
+                pbColor2.Image = newClassImage;
+            }
+            else
+            {
+                pbColor2.Image = null;
             }
         }
 
         private void UpdateClassesList()
         {
+            cbList.SelectedIndex = -1;
             cbList.Items.Clear();
             for (int i = 0; i < recognition.Core.TextureClassCount; ++i)
             {
@@ -80,8 +84,10 @@ namespace TextureRecognition
 
         private void btnSelectColor_Click(object sender, EventArgs e)
         {
-            regionColor.ShowDialog();
-            UpdateColor();
+            if (regionColor.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                UpdateColor();
+            }
         }
 
         private void tsmiClose_Click(object sender, EventArgs e)
@@ -102,6 +108,7 @@ namespace TextureRecognition
             {
                 recognition.Core.AddTextureClass(tbName.Text, regionColor.Color);
                 UpdateClassesList();
+                UpdateColor();
             }
             catch (TextureClassDuplicateException ex)
             {
@@ -112,26 +119,19 @@ namespace TextureRecognition
 
         private void btnDelete_Click(object sender, EventArgs e)
         {
-            if (cbList.SelectedItem != null)
+            if (MessageBox.Show("Удалить выбранный класс?", "Внимание", MessageBoxButtons.YesNo) == DialogResult.Yes)
             {
-                if (MessageBox.Show("Удалить выбранный класс?", "Внимание", MessageBoxButtons.YesNo) == DialogResult.Yes)
-                {
-                    recognition.Core.RemoveTextureClass(cbList.SelectedItem.ToString());
-                    UpdateClassesList();
-                }
+                recognition.Core.RemoveTextureClass(cbList.SelectedItem.ToString());
+                UpdateClassesList();
             }
         }
 
         private void btnTeach_Click(object sender, EventArgs e)
         {
-            if (cbList.SelectedItem == null)
-            {
-                MessageBox.Show("Не выбран текстурный класс.");
-                return;
-            }
+            recognition.CurrentClass = recognition.Core.GetTextureClass(cbList.SelectedItem.ToString());
 
             Hide();
-            TeachTextureClass.Instance.SetTextureClass(cbList.SelectedItem.ToString());
+            TeachTextureClass.Instance.Show();
         }
 
         private void tsmiExit_Click(object sender, EventArgs e)
@@ -144,7 +144,35 @@ namespace TextureRecognition
 
         private void cbList_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (cbList.SelectedIndex >= 0)
+            {
+                btnTeach.Enabled = true;
+                btnDelete.Enabled = true;
+            }
+            else
+            {
+                btnTeach.Enabled = false;
+                btnDelete.Enabled = false;
+            }
             UpdateColor();
+        }
+
+        private void ManageTextureClasses_VisibleChanged(object sender, EventArgs e)
+        {
+            if (cbList.Items.Count > 0)
+            {
+                btnTeach.Enabled = true;
+                btnDelete.Enabled = true;
+                cbList.SelectedIndex = 0;
+            }
+            else
+            {
+                btnTeach.Enabled = false;
+                btnDelete.Enabled = false;
+            }
+            UpdateClassesList();
+            UpdateColor();
+            this.Focus();
         }        
     }
 }

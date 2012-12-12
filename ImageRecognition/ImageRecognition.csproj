@@ -37,6 +37,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -44,6 +45,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common.cs" />
     <Compile Include="GLCM.cs" />
     <Compile Include="LBPHistogramm.cs" />
     <Compile Include="MathHelpers.cs" />
@@ -52,7 +54,6 @@
     <Compile Include="RecognitionParameters.cs" />
     <Compile Include="SubImageSample.cs" />
     <Compile Include="TextureClass.cs" />
-    <Compile Include="TravellingWaves.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ImageProcessing\ImageProcessing.csproj">

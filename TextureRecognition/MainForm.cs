@@ -19,6 +19,9 @@ namespace TextureRecognition
         private ManageTextureClasses manageTexturesWindow;
         private TeachTextureClass teachTextureClassWindow;
         private RecognizeImage recognizeImageWindow;
+        private ChangeName changeNameWindow;
+        private RecognitionOptions recognitionOptionsWindow;
+        private TextureRecognition recognition;
 
         public MainForm()
         {
@@ -29,6 +32,10 @@ namespace TextureRecognition
             manageTexturesWindow = new ManageTextureClasses();
             teachTextureClassWindow = new TeachTextureClass();
             recognizeImageWindow = new RecognizeImage();
+            changeNameWindow = new ChangeName();
+            recognitionOptionsWindow = new RecognitionOptions();
+
+            recognition = TextureRecognition.Instance;
         }
 
         internal static MainForm Instance
@@ -54,6 +61,19 @@ namespace TextureRecognition
         {
             recognizeImageWindow.Show();
             Hide();
+        }
+
+        private void tsmiResetKnowledges_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show("Удалить все знания системы?", "Внимание", MessageBoxButtons.YesNo) == System.Windows.Forms.DialogResult.Yes)
+            {
+                recognition.Core.RemoveAllTextureClasses();
+            }
+        }
+
+        private void tsmiTeaching_VisibleChanged(object sender, EventArgs e)
+        {
+            this.Focus();
         }
     }
 }

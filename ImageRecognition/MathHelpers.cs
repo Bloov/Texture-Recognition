@@ -14,6 +14,7 @@ namespace ImageRecognition
             {
                 throw new ArgumentOutOfRangeException("Выход за пределы массива");
             }
+
             double sum = 0;
             for (int i = from; i < from + count; ++i)
             {
@@ -28,6 +29,7 @@ namespace ImageRecognition
             {
                 throw new ArgumentOutOfRangeException("Выход за пределы массива");
             }
+
             double sum = 0;
             for (int i = from; i < from + count; ++i)
             {
@@ -42,6 +44,7 @@ namespace ImageRecognition
             {
                 throw new ArgumentOutOfRangeException("Выход за пределы массива");
             }
+
             double average = GetAverage(data, from, count);
             double sum = 0;
             for (int i = from; i < from + count; ++i)
@@ -82,6 +85,30 @@ namespace ImageRecognition
             return value;
         }
 
+        public static int ClampToMax(int value, int max)
+        {
+            if (value > max)
+            {
+                return max;
+            }
+            else
+            {
+                return value;
+            }
+        }
+
+        public static double ClampToMax(double value, int max)
+        {
+            if (value > max)
+            {
+                return max;
+            }
+            else
+            {
+                return value;
+            }
+        }
+
         public static byte BilinearInterpolate(double x, double y,
             byte x0y0, byte x1y0, byte x0y1, byte x1y1)
         {
@@ -93,7 +120,7 @@ namespace ImageRecognition
 
         public static UInt16 RightCyclicRotate(UInt16 value, byte bits)
         {
-            return (UInt16)(((UInt16)(value >> bits)) | ((UInt16)(value << (16 - bits))));
+            return (UInt16)((value >> bits) | (value << (16 - bits)));
         }
     }
 }

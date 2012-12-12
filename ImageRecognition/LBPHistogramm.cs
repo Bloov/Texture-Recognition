@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using ImageProcessing;
 
 namespace ImageRecognition
@@ -63,28 +59,15 @@ namespace ImageRecognition
         }
     }
 
-    internal struct Fragment
-    {
-        public int fromX;
-        public int fromY;
-        public byte size;
-    }
-
     internal class LBPHistogrammThreadParameter
     {
         public LBPHistogrammThreadParameter(int from, int to, List<Fragment> list, ManualResetEvent resetEvent)
         {
-            Result = new List<LBPFeature>();
-            List = list;
             From = from;
             To = to;
+            List = list;
+            Result = new List<LBPFeature>();
             ResetEvent = resetEvent;
-        }
-
-        public List<Fragment> List
-        {
-            get;
-            set;
         }
 
         public int From
@@ -99,13 +82,19 @@ namespace ImageRecognition
             set;
         }
 
-        public ManualResetEvent ResetEvent
+        public List<Fragment> List
         {
             get;
             set;
         }
 
         public List<LBPFeature> Result
+        {
+            get;
+            set;
+        }
+
+        public ManualResetEvent ResetEvent
         {
             get;
             set;
@@ -119,18 +108,17 @@ namespace ImageRecognition
         LBPFeature feature;
         bool filterRejects;
         
-        public LBPCreator(ImageGrayData imageData, bool filterRejects = false)
+        public LBPCreator(ImageGrayData imageData, bool filterRejects = true)
         {
             if ((imageData.Width < RecognitionParameters.FragmentsSize) || 
                 (imageData.Height < RecognitionParameters.FragmentsSize))
             {
-                throw new ArgumentException("Изображение слишком мало");
+                throw new ArgumentException("Изображение слишком мало. Невозможно построить LBP-гистограмму");
             }
 
             data = imageData.Data;
             width = imageData.Width;
-            height = imageData.Height;
-            
+            height = imageData.Height;            
             this.filterRejects = filterRejects;
             feature = null;
             ConstructFeature();
@@ -179,7 +167,7 @@ namespace ImageRecognition
         private List<Fragment> GetFragments()
         {
             var list = new List<Fragment>();
-            byte fragmentSize = RecognitionParameters.FragmentsSize;
+            int fragmentSize = RecognitionParameters.FragmentsSize;
             int XCount = width / fragmentSize;
             int YCount = height / fragmentSize;
 
@@ -197,18 +185,6 @@ namespace ImageRecognition
 
             if (XCount * fragmentSize < width)
             {
-                for (int x = 0; x < XCount; ++x)
-                {
-                    Fragment fragment;
-                    fragment.fromX = x * fragmentSize;
-                    fragment.fromY = height - fragmentSize;
-                    fragment.size = fragmentSize;
-                    list.Add(fragment);
-                }
-            }
-
-            if (YCount * fragmentSize < height)
-            {
                 for (int y = 0; y < YCount; ++y)
                 {
                     Fragment fragment;
@@ -216,7 +192,19 @@ namespace ImageRecognition
                     fragment.fromY = y * fragmentSize;
                     fragment.size = fragmentSize;
                     list.Add(fragment);
-                }
+                } 
+            }
+
+            if (YCount * fragmentSize < height)
+            {
+                for (int x = 0; x < XCount; ++x)
+                {
+                    Fragment fragment;
+                    fragment.fromX = x * fragmentSize;
+                    fragment.fromY = height - fragmentSize;
+                    fragment.size = fragmentSize;
+                    list.Add(fragment);
+                }  
             }
 
             if ((XCount * fragmentSize < width) || (YCount * fragmentSize < height))
@@ -236,7 +224,7 @@ namespace ImageRecognition
             LBPHistogrammThreadParameter input = parameter as LBPHistogrammThreadParameter;
             if (parameter == null)
             {
-                throw new ArgumentException("Неправильный формат параметра потока");
+                throw new ArgumentException("Неправильный формат параметра потока.");
             }
 
             for (int i = input.From; i < input.To; ++i)

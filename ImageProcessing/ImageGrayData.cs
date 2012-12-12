@@ -5,7 +5,7 @@ using System.Text;
 
 namespace ImageProcessing
 {
-    public class ImageGrayData
+    public struct ImageGrayData
     {
         int width, height;
         byte[,] data;

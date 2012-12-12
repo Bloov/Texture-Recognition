@@ -8,50 +8,129 @@ namespace ImageRecognition
 {
     static public class RecognitionParameters
     {
+        private static int needNeighborsNumber;
+        private static int fragmentProcessThreadCount;
+        private static int fragmentSize;
+        private static int recognitionFragmentSize;
+        private static double rejectSignificanceLevel;
+        private static byte glcmMaxDisplacementDistance;
+        private static int glcmSize;
+
         static RecognitionParameters()
         {
-            NeededNeighborsNumber = 8;
-            FragmentProcessThreadCount = (byte)Environment.ProcessorCount;
+            NeededNeighborsNumber = 5;
+            FragmentProcessThreadCount = Environment.ProcessorCount;
             FragmentsSize = 36;
-            RejectSignificanceLevel = 0.4;
+            RecognitionFragmentSize = FragmentsSize;
+            RejectSignificanceLevel = 0.65;
             GLCMMaxDisplacementDistance = 12;
             GLCMSize = 16;
         }
 
         public static int NeededNeighborsNumber
         {
-            get;
-            set;
+            get
+            {
+                return needNeighborsNumber;
+            }
+            set
+            {
+                if (value < 1)
+                {
+                    needNeighborsNumber = 1;
+                }
+                else
+                {
+                    needNeighborsNumber = value;
+                }
+            }
         }
 
-        public static byte FragmentProcessThreadCount
+        public static int FragmentProcessThreadCount
         {
-            get;
-            set;
+            get
+            {
+                return fragmentProcessThreadCount;
+            }
+            set
+            {
+                fragmentProcessThreadCount = MathHelpers.Clamp(value, 1, 4 * Environment.ProcessorCount);
+            }
         }
 
-        public static byte FragmentsSize
+        public static int FragmentsSize
         {
-            get;
-            set;
+            get
+            {
+                return fragmentSize;
+            }
+            set
+            {
+                if (value < 36)
+                {
+                    fragmentSize = 36;
+                }
+                else
+                {
+                    fragmentSize = value;
+                }
+                recognitionFragmentSize = MathHelpers.Clamp(recognitionFragmentSize, fragmentSize, int.MaxValue);
+            }
+        }
+
+        public static int RecognitionFragmentSize
+        {
+            get
+            {
+                return recognitionFragmentSize;
+            }
+            set
+            {
+                if (value < fragmentSize)
+                {
+                    recognitionFragmentSize = fragmentSize;
+                }
+                else
+                {
+                    recognitionFragmentSize = value;
+                }
+            }
         }
 
         public static double RejectSignificanceLevel
         {
-            get;
-            set;
+            get
+            {
+                return rejectSignificanceLevel;
+            }
+            set
+            {
+                rejectSignificanceLevel = MathHelpers.Clamp(value, 0.01, 1.0);
+            }
         }
 
         public static byte GLCMMaxDisplacementDistance
         {
-            get;
-            set;
+            get
+            {
+                return glcmMaxDisplacementDistance;
+            }
+            set
+            {
+                glcmMaxDisplacementDistance = (byte)MathHelpers.Clamp(value, 8, 20);
+            }
         }
 
-        public static byte GLCMSize
+        public static int GLCMSize
         {
-            get;
-            set;
+            get
+            {
+                return glcmSize;
+            }
+            set
+            {
+                glcmSize = MathHelpers.Clamp(value, 4, 256);
+            }
         }
     }
 }

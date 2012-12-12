@@ -10,10 +10,16 @@ namespace TextureRecognition
     {
         private static TextureRecognition instance;
         private RecognitionCore core;
-
+        
         static TextureRecognition()
         {
             instance = new TextureRecognition();
+        }
+
+        private TextureRecognition()
+        {
+            core = new RecognitionCore();
+            CurrentClass = null;
         }
 
         public static TextureRecognition Instance
@@ -24,17 +30,18 @@ namespace TextureRecognition
             }
         }
 
-        public TextureRecognition()
-        {
-            core = new RecognitionCore();
-        }
-
         public RecognitionCore Core
         {
             get
             {
                 return core;
             }
+        }
+
+        public TextureClass CurrentClass
+        {
+            get;
+            set;
         }
     }
 }

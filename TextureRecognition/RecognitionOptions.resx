@@ -117,15 +117,4 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <metadata name="msMainMenu.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>27, 18</value>
-  </metadata>
-  <data name="lblInfo.Text" xml:space="preserve">
-    <value>Воспользуйтесь меню сверху что бы выбрать действие.
-
-В меню система можно сохранить или загрузить набор знаний.
-В меню обучение можно обучить текстурные классы или добавить новые.
-В меню распознование можно загрузить изображение и произвести 
-его сегментацию на основе текстурных признаков. </value>
-  </data>
 </root>

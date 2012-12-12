@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Drawing;
+using System.Windows.Forms;
 using ImageProcessing;
 
 namespace ImageRecognition
@@ -12,15 +13,16 @@ namespace ImageRecognition
     public enum TextureFeatures
     {
         GLCM = 0x01, 
-        LBP = 0x02,
-        TravellingWaves = 0x04
+        LBP = 0x02
     }
 
     public class TextureClass
     {
         private double teachProgress;
         private bool isTeaching;
-        private List<string> urls;
+        private bool isTeachingAborted;
+        private List<string> filesToTeach;
+        private List<Bitmap> imagesToTeach;
 
         private int featuresCount;
         private List<string> knownFiles;
@@ -31,82 +33,81 @@ namespace ImageRecognition
         {
             Name = name;
             RegionColor = regionColor;
-            urls = null;
-            isTeaching = false;
 
             knownFiles = new List<string>();
             glcmFeatures = new List<GLCMFeature>();
             lbpFeatures = new List<LBPFeature>();
         }
 
-        public void Teach(List<string> urls)
+        public void Teach(List<string> files, List<Bitmap> images)
         {
+            if ((files == null) || (files.Count == 0) || (files.Count != images.Count))
+            {
+                MessageBox.Show("Неправельный набор данных для обучения.");
+                return;
+            }
+
+            isTeachingAborted = false;
             isTeaching = true;
             teachProgress = 0;
-            this.urls = new List<string>(urls);
+            filesToTeach = files;
+            imagesToTeach = images;
             ThreadPool.QueueUserWorkItem(new WaitCallback(TeachThread));
+        }
+
+        public void AborTeaching()
+        {
+            isTeachingAborted = true;
         }
 
         private void TeachThread(object parameter)
         {
-            if (urls == null)
-            {
-                return;
-            }
-
-            double delta = 1 / (5.0 * urls.Count);
-            foreach (var item in urls)
+            double delta = 1 / (5.0 * filesToTeach.Count);
+            for (int i = 0; i < filesToTeach.Count; ++i)
             {
                 SimpleImage image;
                 ImageGrayData imageData;
                 try
                 {
-                    if (knownFiles.Exists((string name) => name == item))
-                    {
-                        teachProgress += 5 * delta;
-                        continue;
-                    }
-
-                    image = new SimpleImage(item);
+                    image = new SimpleImage(imagesToTeach[i]);
                     imageData = image.GetGrayData();
                     teachProgress += delta;
                 }
                 catch (Exception ex)
                 {
+                    MessageBox.Show(ex.Message);
                     teachProgress += 5 * delta;
                     continue;
+                }
+
+                if (isTeachingAborted)
+                {
+                    break;
                 }
 
                 try
                 {
                     LBPCreator lbp = new LBPCreator(imageData);
                     GLCMCreator glcm = new GLCMCreator(imageData);
-                    AddFeatures(glcm.Feature, lbp.Feature, item);
+                    AddFeatures(glcm.Feature, lbp.Feature, filesToTeach[i]);
                 }
                 catch (Exception ex)
                 {
+                    MessageBox.Show(ex.Message);
                     continue;
                 }
                 finally
                 {
                     teachProgress += 4 * delta;
                 }
+
+                if (isTeachingAborted)
+                {
+                    break;
+                }
             }
 
             isTeaching = false;
-        }
-
-        public void RemoveSample(int index)
-        {
-            if ((index < 0) || (index >= featuresCount))
-            {
-                return;
-            }
-
-            knownFiles.RemoveAt(index);
-            glcmFeatures.RemoveAt(index);
-            lbpFeatures.RemoveAt(index);
-            --featuresCount;
         }
 
         private void AddFeatures(GLCMFeature glcm, LBPFeature lbp, string path)
@@ -117,7 +118,7 @@ namespace ImageRecognition
             knownFiles.Add(path);
         }
 
-        public List<double> GetSortedDistances(SubImageSample sample, TextureFeatures feature)
+        internal List<double> GetSortedDistances(SubImageSample sample, TextureFeatures feature)
         {
             var list = new List<double>();
             for (int i = 0; i < featuresCount; ++i)
@@ -136,10 +137,29 @@ namespace ImageRecognition
                     return sample.GLCM.GetDistance(glcmFeatures[featureIndex]);
                 case TextureFeatures.LBP:
                     return sample.LBP.GetDistance(lbpFeatures[featureIndex]);
-                case TextureFeatures.TravellingWaves:
+                default:
                     return 0;
             }
-            return 0;
+        }
+
+        public void RemoveAllSamples()
+        {
+            knownFiles.Clear();
+            glcmFeatures.Clear();
+            lbpFeatures.Clear();
+            featuresCount = 0;
+        }
+
+        public void RemoveSample(string file)
+        {
+            var index = knownFiles.IndexOf(file);
+            if (index >= 0)
+            {
+                knownFiles.RemoveAt(index);
+                glcmFeatures.RemoveAt(index);
+                lbpFeatures.RemoveAt(index);
+                --featuresCount;
+            }
         }
 
         public string GetKnownSample(int index)
@@ -149,6 +169,11 @@ namespace ImageRecognition
                 return "";
             }
             return knownFiles[index];
+        }
+
+        public bool IsKnowSample(string sample)
+        {
+            return knownFiles.Exists(item => item == sample);
         }
 
         public bool IsTeaching

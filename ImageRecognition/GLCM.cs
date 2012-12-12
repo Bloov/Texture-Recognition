@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Threading;
 using ImageProcessing;
 
@@ -47,17 +43,25 @@ namespace ImageRecognition
             return Math.Sqrt(result);
         }
 
-        public static GLCMFeature BuildStandart(List<GLCMFeature> list)
+        public static GLCMFeature BuildStandart(IEnumerable<GLCMFeature> list)
         {
             var data = new double[16];
-            int count = list.Count;
-            for (int i = 0; i < count; ++i)
+            int count = 0;
+            foreach (var item in list)
             {
+                var glcm = item as GLCMFeature;
+                if (glcm == null)
+                {
+                    continue;
+                }
+
                 for (int j = 0; j < 16; ++j)
                 {
-                    data[j] += list[i].source[j];
+                    data[j] += glcm.source[j];
                 }
+                ++count; 
             }
+
             for (int j = 0; j < 16; ++j)
             {
                 data[j] /= count;
@@ -68,7 +72,7 @@ namespace ImageRecognition
 
     internal class GLCMThreadParameter
     {
-        public GLCMThreadParameter(int from, int to, List<byte[]> fragments, ManualResetEvent resetEvent)
+        public GLCMThreadParameter(int from, int to, List<Fragment> fragments, ManualResetEvent resetEvent)
         {
             ResetEvent = resetEvent;
             From = from;
@@ -89,7 +93,7 @@ namespace ImageRecognition
             set;
         }
 
-        public List<byte[]> Fragments
+        public List<Fragment> Fragments
         {
             get;
             set;
@@ -111,17 +115,17 @@ namespace ImageRecognition
 
     public class GLCMCreator
     {
-        private byte[] data;
+        private byte[,] data;
         private GLCMFeature feature;
         private int width, height;
         private bool filterRejects;
 
-        public GLCMCreator(ImageGrayData imageData, bool filterRejects = false)
+        public GLCMCreator(ImageGrayData imageData, bool filterRejects = true)
         {
             if ((imageData.Width < RecognitionParameters.FragmentsSize) || 
                 (imageData.Height < RecognitionParameters.FragmentsSize))
             {
-                throw new ArgumentException("Изображение слишком мало");
+                throw new ArgumentException("Изображение слишком мало. Невозможно создать матрицу взаимной встречаемости");
             }
 
             this.filterRejects = filterRejects;
@@ -134,15 +138,14 @@ namespace ImageRecognition
         {
             width = imageData.Width;
             height = imageData.Height;
-            data = new byte[width * height];
+            data = new byte[width, height];
             var grayData = imageData.Data;
             int quantizers = 256 / RecognitionParameters.GLCMSize;
             for (int y = 0; y < height; ++y)
             {
-                int offset = y * width;
                 for (int x = 0; x < width; ++x)
                 {
-                    data[offset + x] = (byte)(grayData[x, y] / quantizers);
+                    data[x, y] = (byte)(grayData[x, y] / quantizers);
                 }
             }
         }
@@ -187,75 +190,59 @@ namespace ImageRecognition
             return list;
         }
 
-        private List<byte[]> GetFragments()
+        private List<Fragment> GetFragments()
         {
-            var list = new List<byte[]>();
+            var list = new List<Fragment>();
             int fragmentSize = RecognitionParameters.FragmentsSize;
             int XCount = width / fragmentSize;
             int YCount = height / fragmentSize;
-            
+
             for (int x = 0; x < XCount; ++x)
             {
                 for (int y = 0; y < YCount; ++y)
                 {
-                    int fromX = x * fragmentSize;
-                    int fromY = y * fragmentSize;
-                    int toX = fromX + fragmentSize;
-                    int toY = fromY + fragmentSize;
-                    list.Add(GetFragment(fromX, fromY, toX, toY));
+                    Fragment fragment;
+                    fragment.fromX = x * fragmentSize;
+                    fragment.fromY = y * fragmentSize;
+                    fragment.size = fragmentSize;
+                    list.Add(fragment);
                 }
             }
 
             if (XCount * fragmentSize < width)
             {
-                for (int x = 0; x < XCount; ++x)
+                for (int y = 0; y < YCount; ++y)
                 {
-                    int fromX = x * fragmentSize;
-                    int fromY = height - fragmentSize;
-                    int toX = fromX + fragmentSize;
-                    int toY = height;
-                    list.Add(GetFragment(fromX, fromY, toX, toY));
+                    Fragment fragment;
+                    fragment.fromX = width - fragmentSize;
+                    fragment.fromY = y * fragmentSize;
+                    fragment.size = fragmentSize;
+                    list.Add(fragment);
                 }
             }
 
             if (YCount * fragmentSize < height)
             {
-                for (int y = 0; y < YCount; ++y)
+                for (int x = 0; x < XCount; ++x)
                 {
-                    int fromX = width - fragmentSize;
-                    int fromY = y * fragmentSize;
-                    int toX = width;
-                    int toY = fromY + fragmentSize;
-                    list.Add(GetFragment(fromX, fromY, toX, toY));
-                }
+                    Fragment fragment;
+                    fragment.fromX = x * fragmentSize;
+                    fragment.fromY = height - fragmentSize;
+                    fragment.size = fragmentSize;
+                    list.Add(fragment);
+                } 
             }
 
             if ((XCount * fragmentSize < width) || (YCount * fragmentSize < height))
             {
-                int fromX = width - fragmentSize;
-                int fromY = height - fragmentSize;
-                int toX = width;
-                int toY = height;
-                list.Add(GetFragment(fromX, fromY, toX, toY));
+                Fragment fragment;
+                fragment.fromX = width - fragmentSize;
+                fragment.fromY = height - fragmentSize;
+                fragment.size = fragmentSize;
+                list.Add(fragment);
             }
 
             return list;
-        }
-
-        private byte[] GetFragment(int fromX, int fromY, int toX, int toY)
-        {
-            byte[] result = new byte[(toX - fromX) * (toY - fromY)];
-            int index = 0;
-            for (int y = fromY; y < toY; ++y)
-            {
-                int offset = y * width;
-                for (int x = fromX; x < toX; ++x)
-                {
-                    result[index] = data[offset + x];
-                    ++index;
-                }
-            }
-            return result;
         }
 
         private void CalculateGLCM(object parameter)
@@ -274,16 +261,12 @@ namespace ImageRecognition
             data.ResetEvent.Set();
         }
 
-        private GLCMFeature GetGLCMFeature(byte[] fragment)
+        private GLCMFeature GetGLCMFeature(Fragment fragment)
         {
-            var glcm0list = GetGLCMList(1, 0, fragment);
-            var glcm45list = GetGLCMList(1, 1, fragment);
-            var glcm90list = GetGLCMList(0, 1, fragment);
-            var glcm135list = GetGLCMList(-1, 1, fragment);
-            var glcm0feature = GetBestScalarPropertyFeature(glcm0list);
-            var glcm45feature = GetBestScalarPropertyFeature(glcm45list);
-            var glcm90feature = GetBestScalarPropertyFeature(glcm90list);
-            var glcm135feature = GetBestScalarPropertyFeature(glcm135list);
+            var glcm0feature = GetBestScalarPropertyFeature(fragment, 1, 0);
+            var glcm45feature = GetBestScalarPropertyFeature(fragment, 1, 1);
+            var glcm90feature = GetBestScalarPropertyFeature(fragment, 0, 1);
+            var glcm135feature = GetBestScalarPropertyFeature(fragment, -1, 1);
             var bigfeature = new double[16];
             for (int i = 0; i < 4; ++i)
             {
@@ -295,24 +278,42 @@ namespace ImageRecognition
             return new GLCMFeature(bigfeature);
         }
 
-        private List<double[,]> GetGLCMList(int dx, int dy, byte[] fragment)
+        private double[] GetBestScalarPropertyFeature(Fragment fragment, int dx, int dy)
+        {
+            var glcmList = GetGLCMList(fragment, dx, dy);
+            var result = new double[4];
+            for (int i = 0; i < glcmList.Count; ++i)
+            {
+                var scalar = GetScalarPropertyFeature(glcmList[i]);
+                for (int j = 0; j < 4; ++j)
+                {
+                    if (scalar[j] > result[j])
+                    {
+                        result[j] = scalar[j];
+                    }
+                }
+            }
+            return result;
+        }
+
+        private List<double[,]> GetGLCMList(Fragment fragment, int dx, int dy)
         {
             var result = new List<double[,]>();
-            int fwidth = RecognitionParameters.FragmentsSize;
-            int fheight = fwidth;
+            int toX = fragment.fromX + fragment.size;
+            int toY = fragment.fromY + fragment.size;
             for (int i = 1; i < RecognitionParameters.GLCMMaxDisplacementDistance; ++i)
             {
                 var glcm = new double[RecognitionParameters.GLCMSize, RecognitionParameters.GLCMSize];
-                for (int y = 0; y < fheight; ++y)
+                for (int y = fragment.fromY; y < toY; ++y)
                 {
-                    for (int x = 0; x < fwidth; ++x)
+                    for (int x = fragment.fromX; x < toX; ++x)
                     {
                         int nx = x + dx * i;
                         int ny = y + dy * i;
-                        if (IsInFragment(nx, ny, fwidth, fheight))
+                        if (IsInFragment(nx, ny, fragment))
                         {
-                            int from = fragment[GetIndexInFragment(x, y, fwidth)];
-                            int to = fragment[GetIndexInFragment(nx, ny, fwidth)];
+                            int from = data[x, y];
+                            int to = data[nx, ny];
                             glcm[from, to] += 1;
                         }
                     }
@@ -323,19 +324,15 @@ namespace ImageRecognition
             return result;
         }
 
-        private bool IsInFragment(int x, int y, int fwidth, int fheight)
+        private bool IsInFragment(int x, int y, Fragment fragment)
         {
-            return (x >= 0) && (x < fwidth) && (y >= 0) && (y < fheight);
-        }
-
-        private int GetIndexInFragment(int x, int y, int fwidth)
-        {
-            return y * fwidth + x;
+            return (x >= fragment.fromX) && (x < fragment.fromX + fragment.size) &&
+                (y >= fragment.fromY) && (y < fragment.size);
         }
 
         private void NormalizeGLCM(double[,] glcm, int dx, int dy)
         {
-            double factor = (RecognitionParameters.FragmentsSize - dx) * 
+            double factor = (RecognitionParameters.FragmentsSize - dx) *
                 (RecognitionParameters.FragmentsSize - dy);
             factor = 1 / factor;
             var size = RecognitionParameters.GLCMSize;
@@ -369,23 +366,6 @@ namespace ImageRecognition
                 }
             }
             return new double[] { homogeneity, contrast, energy, entropy };
-        }
-
-        private double[] GetBestScalarPropertyFeature(List<double[,]> glcmList)
-        {
-            var result = new double[4];
-            for (int i = 0; i < glcmList.Count; ++i)
-            {
-                var scalar = GetScalarPropertyFeature(glcmList[i]);
-                for (int j = 0; j < 4; ++j)
-                {
-                    if (scalar[j] > result[j])
-                    {
-                        result[j] = scalar[j];
-                    }
-                }
-            }
-            return result;
         }
 
         private List<GLCMFeature> FilterReject(List<GLCMFeature> list)

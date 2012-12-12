@@ -18,8 +18,7 @@ namespace TextureRecognition
         private const int CP_NOCLOSE_BUTTON = 0x200;
         private static RecognizeImage instance;
         private TextureRecognition recognition;
-
-        private bool isStarted;
+        
         private string imageUrl;
         private Image sourceImage;
         private Image recognizedImage;
@@ -72,7 +71,7 @@ namespace TextureRecognition
 
         private void cbFeature1_CheckedChanged(object sender, EventArgs e)
         {
-            if (!cbFeature1.Checked && !cbFeature2.Checked && !cbFeature3.Checked)
+            if (!cbFeature1.Checked && !cbFeature2.Checked)
             {
                 cbFeature2.Checked = true;
             }
@@ -80,17 +79,9 @@ namespace TextureRecognition
 
         private void cbFeature2_CheckedChanged(object sender, EventArgs e)
         {
-            if (!cbFeature1.Checked && !cbFeature2.Checked && !cbFeature3.Checked)
+            if (!cbFeature1.Checked && !cbFeature2.Checked)
             {
                 cbFeature1.Checked = true;
-            }
-        }
-
-        private void cbFeature3_CheckedChanged(object sender, EventArgs e)
-        {
-            if (!cbFeature1.Checked && !cbFeature2.Checked && !cbFeature3.Checked)
-            {
-                cbFeature3.Checked = true;
             }
         }
 
@@ -102,19 +93,18 @@ namespace TextureRecognition
                 sourceImage = new Bitmap(openImageDialog.FileName);
                 selectingImage = new Bitmap(sourceImage.Width, sourceImage.Height);
                 pbImage.Image = sourceImage;
+                isSelected = false;
             }            
         }
 
         private TextureFeatures GetFeatures()
         {
             return ((cbFeature1.Checked) ? (TextureFeatures.GLCM) : (0)) |
-                ((cbFeature2.Checked) ? (TextureFeatures.LBP) : (0)) |
-                ((cbFeature3.Checked) ? (TextureFeatures.TravellingWaves) : (0));
+                ((cbFeature2.Checked) ? (TextureFeatures.LBP) : (0));
         }
 
         private void RecognizeProcess(object parameter)
         {
-            isStarted = true;
             if (rbWay1.Checked)
             {
                 recognizedImage = recognition.Core.RecognizeImage(imageUrl, selectedRegion, GetFeatures(), out answer);
@@ -128,16 +118,11 @@ namespace TextureRecognition
                     {
                         ShowImage();
                     }));
-            isStarted = false;
         }
 
         private void RecognizeControl(object parameter)
         {
-            while (!isStarted)
-            {
-                Thread.Sleep(10);
-            }
-            while (recognition.Core.IsRecognizing)
+            while (true)
             {
                 this.BeginInvoke(
                     new Action(delegate()
@@ -149,7 +134,11 @@ namespace TextureRecognition
                             }
                             pbProgress.Value = (int)(pbProgress.Maximum * progress);
                         }));
-                Thread.Sleep(1000);
+                Thread.Sleep(200);
+                if (!recognition.Core.IsRecognizing)
+                {
+                    break;
+                }
             }
             this.BeginInvoke(
                 new Action(delegate()
@@ -176,6 +165,12 @@ namespace TextureRecognition
                 return;
             }
 
+            if (recognition.Core.TextureClassCount < 1)
+            {
+                MessageBox.Show("Неизвестно ни одного класса. Сначала проведите обучение.");
+                return;
+            }
+
             if (rbWay1.Checked && !isSelected)
             {
                 MessageBox.Show("Не выделена область на изображении. Сначала выделите область.");
@@ -189,7 +184,6 @@ namespace TextureRecognition
             tsmiClose.Enabled = false;
             pbProgress.Value = 0;
 
-            isStarted = false;
             ThreadPool.QueueUserWorkItem(new WaitCallback(RecognizeProcess));
             ThreadPool.QueueUserWorkItem(new WaitCallback(RecognizeControl));
         }
@@ -401,6 +395,7 @@ namespace TextureRecognition
                 MessageBox.Show("Изображение ещё не распознано");
                 return;
             }
+
             if (saveImageDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 var ext = System.IO.Path.GetExtension(saveImageDialog.FileName);
@@ -424,6 +419,33 @@ namespace TextureRecognition
                         return;
                 }
             }
+        }
+
+        private void UpdateClassesLegend()
+        {
+            tsmiLegend.DropDownItems.Clear();
+            for (int i = 0; i < recognition.Core.TextureClassCount; ++i)
+            {
+                var textureClass = recognition.Core.GetTextureClass(i);
+                var classImage = new Bitmap(16, 16);
+                var render = Graphics.FromImage(classImage);
+                render.FillRectangle(new SolidBrush(textureClass.RegionColor), 
+                    0, 0, classImage.Width, classImage.Height);
+                tsmiLegend.DropDownItems.Add(textureClass.Name, classImage);
+            }
+        }
+
+        private void RecognizeImage_VisibleChanged(object sender, EventArgs e)
+        {
+            if (Visible)
+            {
+                UpdateClassesLegend();
+            }
+        }
+
+        private void tsmiOptions_Click(object sender, EventArgs e)
+        {
+            RecognitionOptions.Instance.ShowDialog();
         }
     }
 }
