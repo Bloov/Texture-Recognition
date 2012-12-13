@@ -35,13 +35,23 @@ namespace ImageRecognition
             double result = 0;
             for (int i = 0; i < 18; ++i)
             {
-                result += Math.Abs(data[i] - other[i]);
+                result += MathHelpers.Sqr(data[i] - other[i]) / (data[i] + other[i]);
             }
             return result;
         }
 
         public static LBPFeature BuildStandart(List<LBPFeature> list)
         {
+            if (list.Count == 0)
+            {
+                return null;
+            }
+
+            if (list.Count == 1)
+            {
+                return list[0];
+            }
+
             double[] standartData = new double[18];
             int count = list.Count;
             for (int i = 0; i < count; ++i)
@@ -103,38 +113,50 @@ namespace ImageRecognition
 
     public class LBPCreator
     {
-        byte[,] data;
-        int width, height;
-        LBPFeature feature;
-        bool filterRejects;
-        
-        public LBPCreator(ImageGrayData imageData, bool filterRejects = true)
+        private byte[,] data;
+        private int width, height;
+        private int fragmentSize;
+        private LBPFeature feature;
+        private bool isTeaching;
+        private bool isDivideToFragments;
+        private bool isMultithread;
+
+        public LBPCreator(ImageGrayData imageData, bool isTeaching, bool isDivideToFragments, bool isMultithread = true)
         {
-            if ((imageData.Width < RecognitionParameters.FragmentsSize) || 
-                (imageData.Height < RecognitionParameters.FragmentsSize))
+            var needSize = RecognitionParameters.RecognitionFragmentSize;
+            if (isTeaching)
             {
-                throw new ArgumentException("Изображение слишком мало. Невозможно построить LBP-гистограмму");
+                needSize = RecognitionParameters.FragmentsSize;
             }
 
+            if ((imageData.Width < needSize) ||
+                (imageData.Height < needSize))
+            {
+                throw new ArgumentException("Размер изображения меньше размера фрагмента для разбиения. \n" +
+                    "Невозможно создать LBP-гистограмму");
+            }
+
+            fragmentSize = needSize;
+            this.isTeaching = isTeaching;
+            this.isDivideToFragments = isDivideToFragments;
+            this.isMultithread = isMultithread;
             data = imageData.Data;
             width = imageData.Width;
             height = imageData.Height;            
-            this.filterRejects = filterRejects;
             feature = null;
             ConstructFeature();
         }
 
         private void ConstructFeature()
         {
-            var list = GetSubfeatures();
-            if (!filterRejects)
+            if (isDivideToFragments)
             {
+                var list = GetSubfeatures();
                 feature = LBPFeature.BuildStandart(list);
             }
             else
             {
-                var filtered = FilterReject(list);
-                feature = LBPFeature.BuildStandart(filtered);
+                feature = GetLBPFeature(new Fragment(0, 0, width, height));
             }
         }
 
@@ -142,6 +164,7 @@ namespace ImageRecognition
         {
             var fragments = GetFragments();
             int threadCount = Math.Min(fragments.Count, RecognitionParameters.FragmentProcessThreadCount);
+            threadCount = (isMultithread) ? (threadCount) : (1);
             int threadPart = fragments.Count / threadCount;
             var resetEvents = new ManualResetEvent[threadCount];
             var threadParameters = new LBPHistogrammThreadParameter[threadCount];
@@ -152,7 +175,14 @@ namespace ImageRecognition
                     threadPart * i,
                     ((i + 1) < threadCount) ? (threadPart * (i + 1)) : (fragments.Count),
                     fragments, resetEvents[i]);
-                ThreadPool.QueueUserWorkItem(new WaitCallback(CalculateLBP), threadParameters[i]);
+                if (threadCount > 1)
+                {
+                    ThreadPool.QueueUserWorkItem(new WaitCallback(CalculateLBP), threadParameters[i]);
+                }
+                else
+                {
+                    CalculateLBP(threadParameters[i]);
+                }
             }
             WaitHandle.WaitAll(resetEvents);
 
@@ -167,7 +197,6 @@ namespace ImageRecognition
         private List<Fragment> GetFragments()
         {
             var list = new List<Fragment>();
-            int fragmentSize = RecognitionParameters.FragmentsSize;
             int XCount = width / fragmentSize;
             int YCount = height / fragmentSize;
 
@@ -175,10 +204,8 @@ namespace ImageRecognition
             {
                 for (int y = 0; y < YCount; ++y)
                 {
-                    Fragment fragment;
-                    fragment.fromX = x * fragmentSize;
-                    fragment.fromY = y * fragmentSize;
-                    fragment.size = fragmentSize;
+                    Fragment fragment = new Fragment(x * fragmentSize, y * fragmentSize,
+                        fragmentSize, fragmentSize);
                     list.Add(fragment);
                 }
             }
@@ -187,32 +214,26 @@ namespace ImageRecognition
             {
                 for (int y = 0; y < YCount; ++y)
                 {
-                    Fragment fragment;
-                    fragment.fromX = width - fragmentSize;
-                    fragment.fromY = y * fragmentSize;
-                    fragment.size = fragmentSize;
+                    Fragment fragment = new Fragment(width - fragmentSize, y * fragmentSize,
+                        fragmentSize, fragmentSize);
                     list.Add(fragment);
-                } 
+                }
             }
 
             if (YCount * fragmentSize < height)
             {
                 for (int x = 0; x < XCount; ++x)
                 {
-                    Fragment fragment;
-                    fragment.fromX = x * fragmentSize;
-                    fragment.fromY = height - fragmentSize;
-                    fragment.size = fragmentSize;
+                    Fragment fragment = new Fragment(x * fragmentSize, height - fragmentSize,
+                        fragmentSize, fragmentSize);
                     list.Add(fragment);
-                }  
+                }
             }
 
             if ((XCount * fragmentSize < width) || (YCount * fragmentSize < height))
             {
-                Fragment fragment;
-                fragment.fromX = width - fragmentSize;
-                fragment.fromY = height - fragmentSize;
-                fragment.size = fragmentSize;
+                Fragment fragment = new Fragment(width - fragmentSize, height - fragmentSize,
+                    fragmentSize, fragmentSize);
                 list.Add(fragment);
             }
 
@@ -238,9 +259,9 @@ namespace ImageRecognition
         private LBPFeature GetLBPFeature(Fragment fragment)
         {
             int fromX = MathHelpers.Clamp(fragment.fromX, 2, width - 2);
-            int toX = MathHelpers.Clamp(fromX + fragment.size, 2, width - 2);
+            int toX = MathHelpers.Clamp(fromX + fragment.width, 2, width - 2);
             int fromY = MathHelpers.Clamp(fragment.fromY, 2, height - 2);
-            int toY = MathHelpers.Clamp(fromY + fragment.size, 2, height - 2);
+            int toY = MathHelpers.Clamp(fromY + fragment.height, 2, height - 2);
 
             double[] histogramm = new double[18];
             int count = 0;
@@ -357,10 +378,10 @@ namespace ImageRecognition
 
         private byte GetHistogrammValue(UInt16 lbpValue)
         {
-            UInt16 min = UInt16.MaxValue;
+            var min = UInt16.MaxValue;
             for (byte i = 0; i < 16; i++)
             {
-                UInt16 rotated = MathHelpers.RightCyclicRotate(lbpValue, i);
+                var rotated = MathHelpers.RightCyclicRotate(lbpValue, i);
                 if (rotated < min)
                 {
                     min = rotated;
@@ -388,48 +409,6 @@ namespace ImageRecognition
             }            
 
             return 17;
-        }
-
-        private List<LBPFeature> FilterReject(List<LBPFeature> list)
-        {
-            var standart = LBPFeature.BuildStandart(list);
-            var average = GetAverageDistance(list, standart);
-            var deviation = GetDeviationDistance(list, standart, average);
-            var goodfeatures = new List<LBPFeature>();
-            var studentTTest = alglib.studenttdistr.studenttdistribution(
-                list.Count - 1, RecognitionParameters.RejectSignificanceLevel);
-            for (int i = 0; i < list.Count; ++i)
-            {
-                var distance = list[i].GetDistance(standart);
-                var value = (distance - average) / deviation;
-                if (value < studentTTest)
-                {
-                    goodfeatures.Add(list[i]);
-                }
-            }
-            return goodfeatures;
-        }
-
-        private double GetAverageDistance(List<LBPFeature> list, LBPFeature standart)
-        {
-            double sum = 0;
-            int count = list.Count;
-            for (int i = 0; i < count; ++i)
-            {
-                sum += list[i].GetDistance(standart);
-            }
-            return sum / count;
-        }
-
-        private double GetDeviationDistance(List<LBPFeature> list, LBPFeature standart, double average)
-        {
-            double sum = 0;
-            int count = list.Count;
-            for (int i = 0; i < count; ++i)
-            {
-                sum += MathHelpers.Sqr(list[i].GetDistance(standart) - average);
-            }
-            return Math.Sqrt(sum / (count - 1));
         }
 
         public LBPFeature Feature

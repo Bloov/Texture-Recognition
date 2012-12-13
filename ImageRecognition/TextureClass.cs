@@ -1,19 +1,39 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Collections;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Drawing;
 using System.Windows.Forms;
 using ImageProcessing;
 
 namespace ImageRecognition
 {
-    public enum TextureFeatures
+    internal class TeachThreadParameter
     {
-        GLCM = 0x01, 
-        LBP = 0x02
+        public TeachThreadParameter(int from, int to, Barrier barrier)
+        {
+            From = from;
+            To = to;
+            CommonBarrier = barrier;
+        }
+
+        public int From
+        {
+            get;
+            set;
+        }
+
+        public int To
+        {
+            get;
+            set;
+        }
+
+        public Barrier CommonBarrier
+        {
+            get;
+            set;
+        }
     }
 
     public class TextureClass
@@ -41,7 +61,7 @@ namespace ImageRecognition
 
         public void Teach(List<string> files, List<Bitmap> images)
         {
-            if ((files == null) || (files.Count == 0) || (files.Count != images.Count))
+            if ((files == null) || (images == null) || (files.Count == 0) || (files.Count != images.Count))
             {
                 MessageBox.Show("Неправельный набор данных для обучения.");
                 return;
@@ -52,7 +72,22 @@ namespace ImageRecognition
             teachProgress = 0;
             filesToTeach = files;
             imagesToTeach = images;
-            ThreadPool.QueueUserWorkItem(new WaitCallback(TeachThread));
+            StartTeachingThreads();            
+        }
+
+        private void StartTeachingThreads()
+        {
+            int threadCount = Math.Min(imagesToTeach.Count, 2 * Environment.ProcessorCount);
+            int threadPart = imagesToTeach.Count / threadCount;
+            var barrier = new Barrier(threadCount, item => isTeaching = false);
+            var threadParameters = new TeachThreadParameter[threadCount];
+            for (int i = 0; i < threadCount; ++i)
+            {
+                threadParameters[i] = new TeachThreadParameter(
+                    threadPart * i, ((i + 1) < threadCount) ? (threadPart * (i + 1)) : (imagesToTeach.Count),
+                    barrier);
+                ThreadPool.QueueUserWorkItem(new WaitCallback(TeachThread), threadParameters[i]);
+            }
         }
 
         public void AborTeaching()
@@ -62,33 +97,21 @@ namespace ImageRecognition
 
         private void TeachThread(object parameter)
         {
-            double delta = 1 / (5.0 * filesToTeach.Count);
-            for (int i = 0; i < filesToTeach.Count; ++i)
+            TeachThreadParameter input = parameter as TeachThreadParameter;
+            if (input == null)
             {
-                SimpleImage image;
-                ImageGrayData imageData;
+                throw new ArgumentNullException("Неправильный параметр потока.");
+            }
+
+            var delta = 1.0 / filesToTeach.Count;
+            for (int i = input.From; (i < input.To) && (!isTeachingAborted); ++i)
+            {
                 try
                 {
-                    image = new SimpleImage(imagesToTeach[i]);
-                    imageData = image.GetGrayData();
-                    teachProgress += delta;
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message);
-                    teachProgress += 5 * delta;
-                    continue;
-                }
-
-                if (isTeachingAborted)
-                {
-                    break;
-                }
-
-                try
-                {
-                    LBPCreator lbp = new LBPCreator(imageData);
-                    GLCMCreator glcm = new GLCMCreator(imageData);
+                    var image = new SimpleImage(imagesToTeach[i]);
+                    var imageData = image.GetGrayData();
+                    var lbp = new LBPCreator(imageData, true, true, false);
+                    var glcm = new GLCMCreator(imageData, true, true, false);
                     AddFeatures(glcm.Feature, lbp.Feature, filesToTeach[i]);
                 }
                 catch (Exception ex)
@@ -98,27 +121,27 @@ namespace ImageRecognition
                 }
                 finally
                 {
-                    teachProgress += 4 * delta;
-                }
-
-                if (isTeachingAborted)
-                {
-                    break;
+                    lock ((knownFiles as ICollection).SyncRoot)
+                    {
+                        teachProgress += delta;
+                    }
                 }
             }
-
-            isTeaching = false;
+            input.CommonBarrier.SignalAndWait();
         }
 
         private void AddFeatures(GLCMFeature glcm, LBPFeature lbp, string path)
         {
-            ++featuresCount;
-            glcmFeatures.Add(glcm);
-            lbpFeatures.Add(lbp);
-            knownFiles.Add(path);
+            lock ((knownFiles as ICollection).SyncRoot)
+            {
+                ++featuresCount;
+                glcmFeatures.Add(glcm);
+                lbpFeatures.Add(lbp);
+                knownFiles.Add(path);
+            }
         }
 
-        internal List<double> GetSortedDistances(SubImageSample sample, TextureFeatures feature)
+        internal List<double> GetSortedDistances(TextureSample sample, TextureFeatures feature)
         {
             var list = new List<double>();
             for (int i = 0; i < featuresCount; ++i)
@@ -129,7 +152,7 @@ namespace ImageRecognition
             return list;
         }
 
-        private double GetDistance(SubImageSample sample, int featureIndex, TextureFeatures feature)
+        private double GetDistance(TextureSample sample, int featureIndex, TextureFeatures feature)
         {
             switch (feature)
             {
@@ -144,6 +167,11 @@ namespace ImageRecognition
 
         public void RemoveAllSamples()
         {
+            if (isTeaching)
+            {
+                return;
+            }
+            
             knownFiles.Clear();
             glcmFeatures.Clear();
             lbpFeatures.Clear();
@@ -152,6 +180,11 @@ namespace ImageRecognition
 
         public void RemoveSample(string file)
         {
+            if (isTeaching)
+            {
+                return;
+            }
+
             var index = knownFiles.IndexOf(file);
             if (index >= 0)
             {

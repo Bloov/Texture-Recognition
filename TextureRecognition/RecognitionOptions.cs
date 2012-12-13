@@ -54,10 +54,10 @@ namespace TextureRecognition
                 RecognitionParameters.NeededNeighborsNumber = iValue;
                 tbNeighbors.Text = RecognitionParameters.NeededNeighborsNumber.ToString();
             }
-            if (double.TryParse(tbRejectsLevel.Text, out dValue))
+            if (double.TryParse(tbDeviation.Text, out dValue))
             {
-                RecognitionParameters.RejectSignificanceLevel = dValue;
-                tbRejectsLevel.Text = RecognitionParameters.RejectSignificanceLevel.ToString("F3");
+                RecognitionParameters.GLCMDeviationWeight = dValue;
+                tbDeviation.Text = RecognitionParameters.GLCMDeviationWeight.ToString("F3");
             }
             Hide();
         }
@@ -72,7 +72,7 @@ namespace TextureRecognition
             lblFragmentSize.Text = "Размер фрагмента для распознования\n(не менее " +
                 RecognitionParameters.FragmentsSize.ToString() + " )";
             tbNeighbors.Text = RecognitionParameters.NeededNeighborsNumber.ToString();
-            tbRejectsLevel.Text = RecognitionParameters.RejectSignificanceLevel.ToString("F3");
+            tbDeviation.Text = RecognitionParameters.GLCMDeviationWeight.ToString("F3");
             tbFragmentSize.Text = RecognitionParameters.FragmentsSize.ToString();
             tbFragmentSize.SelectAll();
             tbFragmentSize.Focus();
@@ -84,8 +84,8 @@ namespace TextureRecognition
             {
                 if (e.KeyChar == 13)
                 {
-                    tbRejectsLevel.SelectAll();
-                    tbRejectsLevel.Focus();
+                    tbDeviation.SelectAll();
+                    tbDeviation.Focus();
                 }
                 return;
             }
@@ -96,6 +96,11 @@ namespace TextureRecognition
         {
             if (char.IsDigit(e.KeyChar) || (e.KeyChar == '.') || char.IsControl(e.KeyChar))
             {
+                if (e.KeyChar == 13)
+                {
+                    tbNeighbors.SelectAll();
+                    tbNeighbors.Focus();
+                }
                 return;
             }
             e.Handled = true;
@@ -105,6 +110,7 @@ namespace TextureRecognition
         {
             if (char.IsDigit(e.KeyChar) || char.IsControl(e.KeyChar))
             {
+                btnApply.Focus();
                 return;
             }
             e.Handled = true;
@@ -124,11 +130,11 @@ namespace TextureRecognition
         private void tbRejectsLevel_Leave(object sender, EventArgs e)
         {
             var level = 0.0;
-            if (!double.TryParse(tbRejectsLevel.Text, out level))
+            if (!double.TryParse(tbDeviation.Text, out level))
             {
                 MessageBox.Show("Недопустимое значение уровня. Повторите ввод.");
-                tbRejectsLevel.SelectAll();
-                tbRejectsLevel.Focus();
+                tbDeviation.SelectAll();
+                tbDeviation.Focus();
             }
         }
 

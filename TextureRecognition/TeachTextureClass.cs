@@ -113,8 +113,8 @@ namespace TextureRecognition
 
         private void tsmiClose_Click(object sender, EventArgs e)
         {
+            //ManageTextureClasses.Instance.Show();
             Hide();
-            ManageTextureClasses.Instance.Show();
         }
 
         private void tsmiExit_Click(object sender, EventArgs e)
@@ -170,7 +170,7 @@ namespace TextureRecognition
             if (openImagesDialog.ShowDialog() == DialogResult.OK)
             {
                 pbTeach.Value = 0;
-                filesToTeach.Clear();
+                //filesToTeach.Clear();
                 foreach (var file in openImagesDialog.FileNames)
                 {
                     if (recognition.CurrentClass.IsKnowSample(file))
@@ -196,6 +196,10 @@ namespace TextureRecognition
                 foreach (ListViewItem item in lwImages.SelectedItems)
                 {
                     var file = item.ImageKey;
+                    if (recognition.CurrentClass.IsKnowSample(file))
+                    {
+                        recognition.CurrentClass.RemoveSample(file);
+                    }
                     imageList.Images.RemoveByKey(file);
                     var image = images[file];
                     if (image == pbImage.Image)

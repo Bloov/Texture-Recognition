@@ -12,19 +12,19 @@ namespace ImageRecognition
         private static int fragmentProcessThreadCount;
         private static int fragmentSize;
         private static int recognitionFragmentSize;
-        private static double rejectSignificanceLevel;
         private static byte glcmMaxDisplacementDistance;
         private static int glcmSize;
+        private static double glcmDeviationWeight;
 
         static RecognitionParameters()
         {
-            NeededNeighborsNumber = 5;
+            NeededNeighborsNumber = 8;
             FragmentProcessThreadCount = Environment.ProcessorCount;
-            FragmentsSize = 36;
+            FragmentsSize = 40;
             RecognitionFragmentSize = FragmentsSize;
-            RejectSignificanceLevel = 0.65;
             GLCMMaxDisplacementDistance = 12;
             GLCMSize = 16;
+            GLCMDeviationWeight = 0.6;
         }
 
         public static int NeededNeighborsNumber
@@ -97,18 +97,6 @@ namespace ImageRecognition
             }
         }
 
-        public static double RejectSignificanceLevel
-        {
-            get
-            {
-                return rejectSignificanceLevel;
-            }
-            set
-            {
-                rejectSignificanceLevel = MathHelpers.Clamp(value, 0.01, 1.0);
-            }
-        }
-
         public static byte GLCMMaxDisplacementDistance
         {
             get
@@ -130,6 +118,18 @@ namespace ImageRecognition
             set
             {
                 glcmSize = MathHelpers.Clamp(value, 4, 256);
+            }
+        }
+
+        public static double GLCMDeviationWeight
+        {
+            get
+            {
+                return glcmDeviationWeight;
+            }
+            set
+            {
+                glcmDeviationWeight = MathHelpers.Clamp(value, 0, 1);
             }
         }
     }

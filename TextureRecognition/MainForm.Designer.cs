@@ -105,7 +105,6 @@
             this.tsmiTeaching.Size = new System.Drawing.Size(111, 29);
             this.tsmiTeaching.Text = "Обучение";
             this.tsmiTeaching.Click += new System.EventHandler(this.tsmiTeaching_Click);
-            this.tsmiTeaching.VisibleChanged += new System.EventHandler(this.tsmiTeaching_VisibleChanged);
             // 
             // tsmiRecognition
             // 
@@ -146,6 +145,7 @@
             this.MinimumSize = new System.Drawing.Size(600, 310);
             this.Name = "MainForm";
             this.Text = "Курсовая работа по МРО. Петровский А.В. гр. 107529";
+            this.VisibleChanged += new System.EventHandler(this.MainForm_VisibleChanged);
             this.msMainMenu.ResumeLayout(false);
             this.msMainMenu.PerformLayout();
             this.panelInfo.ResumeLayout(false);

@@ -6,16 +6,16 @@ using ImageProcessing;
 
 namespace ImageRecognition
 {
-    public class SubImageSample
+    public class TextureSample
     {
-        public SubImageSample(ImageGrayData imageData)
+        public TextureSample(ImageGrayData imageData, bool isDivideToFragments)
         {
             Sample = imageData;
 
-            GLCMCreator glcm = new GLCMCreator(imageData, false);
+            GLCMCreator glcm = new GLCMCreator(imageData, false, isDivideToFragments);
             GLCM = glcm.Feature;
 
-            LBPCreator lbp = new LBPCreator(imageData, false);
+            LBPCreator lbp = new LBPCreator(imageData, false, isDivideToFragments);
             LBP = lbp.Feature;
         }
 

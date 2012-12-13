@@ -18,15 +18,17 @@ namespace TextureRecognition
         private const int CP_NOCLOSE_BUTTON = 0x200;
         private static RecognizeImage instance;
         private TextureRecognition recognition;
-        
+
         private string imageUrl;
-        private Image sourceImage;
-        private Image recognizedImage;
-        private Image selectingImage;
+        private Bitmap sourceImage;
+        private Bitmap recognizedImage;
+        private Bitmap selectingImage;
         private bool isSelecting, isSelected;
         private Point firstPoint, secondPoint;
         private Rectangle selectedRegion;
-        private string answer;
+        private List<RecognitionResult> answers;
+        private RecognitionResult answer;
+        private bool isRecognized;
 
         public RecognizeImage()
         {
@@ -55,6 +57,29 @@ namespace TextureRecognition
             }
         }
 
+        private void RecognizeImage_VisibleChanged(object sender, EventArgs e)
+        {
+            if (Visible)
+            {
+                Focus();
+                UpdateClassesLegend();
+            }
+        }
+
+        private void UpdateClassesLegend()
+        {
+            tsmiLegend.DropDownItems.Clear();
+            for (int i = 0; i < recognition.Core.TextureClassCount; ++i)
+            {
+                var textureClass = recognition.Core.GetTextureClass(i);
+                var classImage = new Bitmap(16, 16);
+                var render = Graphics.FromImage(classImage);
+                render.FillRectangle(new SolidBrush(textureClass.RegionColor),
+                    0, 0, classImage.Width, classImage.Height);
+                tsmiLegend.DropDownItems.Add(textureClass.Name, classImage);
+            }
+        }
+
         private void tsmiClose_Click(object sender, EventArgs e)
         {
             if (MessageBox.Show("Выйти из приложения?", "Внимание", MessageBoxButtons.YesNo) == DialogResult.Yes)
@@ -66,7 +91,49 @@ namespace TextureRecognition
         private void tsmiBack_Click(object sender, EventArgs e)
         {
             Hide();
-            MainForm.Instance.Show();
+        }
+
+        private void tsmiOptions_Click(object sender, EventArgs e)
+        {
+            RecognitionOptions.Instance.ShowDialog();
+        }
+
+        private void tsmiSaveResult_Click(object sender, EventArgs e)
+        {
+            if (recognizedImage == null)
+            {
+                MessageBox.Show("Изображение ещё не распознано");
+                return;
+            }
+
+            if (saveImageDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                var ext = System.IO.Path.GetExtension(saveImageDialog.FileName);
+                switch (ext)
+                {
+                    case ".png":
+                        recognizedImage.Save(saveImageDialog.FileName, System.Drawing.Imaging.ImageFormat.Png);
+                        return;
+
+                    case ".bmp":
+                        recognizedImage.Save(saveImageDialog.FileName, System.Drawing.Imaging.ImageFormat.Bmp);
+                        return;
+
+                    case ".jpg":
+                    case ".jpeg":
+                        recognizedImage.Save(saveImageDialog.FileName, System.Drawing.Imaging.ImageFormat.Jpeg);
+                        return;
+
+                    default:
+                        recognizedImage.Save(saveImageDialog.FileName);
+                        return;
+                }
+            }
+        }
+
+        private void tsmiBatchProcessing_Click(object sender, EventArgs e)
+        {
+            BatchProcessing.Instance.ShowDialog();
         }
 
         private void cbFeature1_CheckedChanged(object sender, EventArgs e)
@@ -85,38 +152,125 @@ namespace TextureRecognition
             }
         }
 
+        private void cbShowImage_CheckedChanged(object sender, EventArgs e)
+        {
+            UpdateImages();
+        }
+
+        private void UpdateImages()
+        {
+            if (cbShowImage.Checked)
+            {
+                pbImage.Image = sourceImage;
+            }
+            else
+            {
+                if (recognizedImage == null)
+                {
+                    pbImage.Image = sourceImage;
+                }
+                else
+                {
+                    pbImage.Image = recognizedImage;
+                }
+            }
+        }
+
         private void btnSelectImage_Click(object sender, EventArgs e)
         {
             if (openImageDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 imageUrl = openImageDialog.FileName;
                 sourceImage = new Bitmap(openImageDialog.FileName);
+                if ((sourceImage.Width < RecognitionParameters.RecognitionFragmentSize) ||
+                    (sourceImage.Height < RecognitionParameters.RecognitionFragmentSize))
+                {
+                    MessageBox.Show("Изображение меньше указанного размера фрагмента для разбиения.\n" +
+                        "Укажите иной размер фрагмента или выберите другое изображение.");
+                    return;
+                }
+
+                isRecognized = false;
+                btnRecognize.Image = resources.search;
+                btnRecognize.Text = "Распознать\nтекстуры";
+
+                recognizedImage = null;
                 selectingImage = new Bitmap(sourceImage.Width, sourceImage.Height);
                 pbImage.Image = sourceImage;
                 isSelected = false;
             }            
         }
 
-        private TextureFeatures GetFeatures()
+        private void btnRecognize_Click(object sender, EventArgs e)
         {
-            return ((cbFeature1.Checked) ? (TextureFeatures.GLCM) : (0)) |
-                ((cbFeature2.Checked) ? (TextureFeatures.LBP) : (0));
+            if (sourceImage == null)
+            {
+                MessageBox.Show("Выберете сначала изображение.");
+                return;
+            }
+
+            if (isRecognized)
+            {
+                UpdateRecognizedImage();
+                UpdateImages();
+                return;
+            }
+
+            if ((sourceImage.Width < RecognitionParameters.RecognitionFragmentSize) ||
+                (sourceImage.Height < RecognitionParameters.RecognitionFragmentSize))
+            {
+                MessageBox.Show("Изображние слишком мало - невозможно разбить на фрагменты.\n" +
+                    "Выберете другое изображение или размер фрагмента.");
+                return;
+            }
+
+            if (recognition.Core.TextureClassCount < 1)
+            {
+                MessageBox.Show("Неизвестно ни одного класса. Сначала проведите обучение.");
+                return;
+            }
+
+            if (rbRegion.Checked && !isSelected)
+            {
+                MessageBox.Show("Не выделена область на изображении. Сначала выделите область.");
+                return;
+            }
+
+            btnRecognize.Enabled = false;
+            btnSelectImage.Enabled = false;
+            panelParameters.Enabled = false;
+            tsmiOptions.Enabled = false;
+            tsmiSaveResult.Enabled = false;
+            tsmiBack.Enabled = false;
+            tsmiClose.Enabled = false;
+            pbProgress.Value = 0;
+
+            answer = null;
+            answers = null;
+            ThreadPool.QueueUserWorkItem(new WaitCallback(RecognizeProcess));
+            ThreadPool.QueueUserWorkItem(new WaitCallback(RecognizeControl));
         }
 
         private void RecognizeProcess(object parameter)
         {
-            if (rbWay1.Checked)
+            if (rbRegion.Checked || rbAllImage.Checked)
             {
-                recognizedImage = recognition.Core.RecognizeImage(imageUrl, selectedRegion, GetFeatures(), out answer);
+                Rectangle region = selectedRegion;
+                if (rbAllImage.Checked)
+                {
+                    region = new Rectangle(0, 0, sourceImage.Width, sourceImage.Height);
+                }
+                answer = recognition.Core.RecognizeImage(sourceImage, region);
             }
             else
             {
-                recognizedImage = recognition.Core.RecognizeImage(imageUrl, GetFeatures());
+                answers = recognition.Core.RecognizeImage(sourceImage);
             }
             this.BeginInvoke(
                 new Action(delegate()
                     {
-                        ShowImage();
+                        UpdateRecognizedImage();
+                        UpdateImages();
                     }));
         }
 
@@ -134,7 +288,7 @@ namespace TextureRecognition
                             }
                             pbProgress.Value = (int)(pbProgress.Maximum * progress);
                         }));
-                Thread.Sleep(200);
+                Thread.Sleep(150);
                 if (!recognition.Core.IsRecognizing)
                 {
                     break;
@@ -144,64 +298,64 @@ namespace TextureRecognition
                 new Action(delegate()
                     {
                         btnRecognize.Enabled = true;
+                        if (rbSegmentation.Checked)
+                        {
+                            isRecognized = true;
+                            btnRecognize.Image = resources.refresh;
+                            btnRecognize.Text = "Обновить\nизображение";
+                        }
+
                         btnSelectImage.Enabled = true;
                         panelParameters.Enabled = true;
+                        tsmiOptions.Enabled = true;
+                        tsmiSaveResult.Enabled = true;
                         tsmiBack.Enabled = true;
                         tsmiClose.Enabled = true;
-
                         pbProgress.Value = pbProgress.Maximum;
 
-                        if (rbWay1.Checked)
+                        if (rbRegion.Checked || rbAllImage.Checked)
                         {
-                            MessageBox.Show("На этой областе изображено: " + answer);
+                            MessageBox.Show("В выделеной области изображено\n" +
+                                "\tсогласно LBP-гистограммам: " + answer[TextureFeatures.LBP].Name + "\n" +
+                                "\tсогласно ПМВВ: " + answer[TextureFeatures.GLCM].Name);
                         }
                     }));                        
         }
 
-        private void btnRecognize_Click(object sender, EventArgs e)
+        private void UpdateRecognizedImage()
         {
-            if (sourceImage == null)
+            List<RecognitionResult> list = new List<RecognitionResult>();
+            if (answers == null)
             {
-                return;
-            }
-
-            if (recognition.Core.TextureClassCount < 1)
-            {
-                MessageBox.Show("Неизвестно ни одного класса. Сначала проведите обучение.");
-                return;
-            }
-
-            if (rbWay1.Checked && !isSelected)
-            {
-                MessageBox.Show("Не выделена область на изображении. Сначала выделите область.");
-                return;
-            }
-
-            btnRecognize.Enabled = false;
-            btnSelectImage.Enabled = false;
-            panelParameters.Enabled = false;
-            tsmiBack.Enabled = false;
-            tsmiClose.Enabled = false;
-            pbProgress.Value = 0;
-
-            ThreadPool.QueueUserWorkItem(new WaitCallback(RecognizeProcess));
-            ThreadPool.QueueUserWorkItem(new WaitCallback(RecognizeControl));
-        }
-
-        private void cbShowImage_CheckedChanged(object sender, EventArgs e)
-        {
-            ShowImage();
-        }
-
-        private void ShowImage()
-        {
-            if (cbShowImage.Checked)
-            {
-                pbImage.Image = sourceImage;
+                list.Add(answer);
             }
             else
             {
-                pbImage.Image = recognizedImage;
+                list.AddRange(answers);
+            }
+
+            recognizedImage = new Bitmap(sourceImage);
+            var render = Graphics.FromImage(recognizedImage);
+            int alpha = 50;
+            alpha = (cbFeature1.Checked && !cbFeature2.Checked) ? (100) : (alpha);
+            alpha = (cbFeature2.Checked && !cbFeature1.Checked) ? (100) : (alpha);
+            foreach (var item in list)
+            {
+                var variant = item[TextureFeatures.GLCM];
+                if ((variant != null) && cbFeature1.Checked)
+                {
+                    render.FillRectangle(
+                        new SolidBrush(Color.FromArgb(alpha, variant.RegionColor.R, variant.RegionColor.G, variant.RegionColor.B)),
+                        item.Region);
+                }
+
+                variant = item[TextureFeatures.LBP];
+                if ((variant != null) && cbFeature2.Checked)
+                {
+                    render.FillRectangle(
+                        new SolidBrush(Color.FromArgb(alpha, variant.RegionColor.R, variant.RegionColor.G, variant.RegionColor.B)),
+                        item.Region);
+                }
             }
         }
 
@@ -268,46 +422,17 @@ namespace TextureRecognition
 
         private void pbImage_MouseDown(object sender, MouseEventArgs e)
         {
-            if ((pbImage.Image != null) && (rbWay1.Checked))
+            if ((pbImage.Image != null) && (rbRegion.Checked))
             {
                 isSelected = false;
                 isSelecting = true;
                 var scale = 1.0;
                 var sedge = GetImageStartEdge(out scale);
-                if (e.X < sedge.X)
-                {
-                    firstPoint.X = sedge.X;
-                }
-                else
-                {
-                    firstPoint.X = e.X;
-                }
-                if (e.Y < sedge.Y)
-                {
-                    firstPoint.Y = sedge.Y;
-                }
-                else
-                {
-                    firstPoint.Y = e.Y;
-                }
-
                 var eedge = GetImageEndEdge();
-                if (e.X > eedge.X)
-                {
-                    firstPoint.X = eedge.X;
-                }
-                else
-                {
-                    firstPoint.X = e.X;
-                }
-                if (e.Y > eedge.Y)
-                {
-                    firstPoint.Y = eedge.Y;
-                }
-                else
-                {
-                    firstPoint.Y = e.Y;
-                }
+                firstPoint.X = (e.X < sedge.X) ? (sedge.X) : (e.X);
+                firstPoint.Y = (e.Y < sedge.Y) ? (sedge.Y) : (e.Y);
+                firstPoint.X = (e.X > eedge.X) ? (eedge.X) : (e.X);
+                firstPoint.Y = (e.Y > eedge.Y) ? (eedge.Y) : (e.Y);
                 firstPoint.X -= sedge.X;
                 firstPoint.X = (int)(firstPoint.X / scale);
                 firstPoint.Y -= sedge.Y;
@@ -323,40 +448,11 @@ namespace TextureRecognition
             {
                 var scale = 1.0;
                 var sedge = GetImageStartEdge(out scale);
-                if (e.X < sedge.X)
-                {
-                    secondPoint.X = sedge.X;
-                }
-                else
-                {
-                    secondPoint.X = e.X;
-                }
-                if (e.Y < sedge.Y)
-                {
-                    secondPoint.Y = sedge.Y;
-                }
-                else
-                {
-                    secondPoint.Y = e.Y;
-                }
-
                 var eedge = GetImageEndEdge();
-                if (e.X > eedge.X)
-                {
-                    secondPoint.X = eedge.X;
-                }
-                else
-                {
-                    secondPoint.X = e.X;
-                }
-                if (e.Y > eedge.Y)
-                {
-                    secondPoint.Y = eedge.Y;
-                }
-                else
-                {
-                    secondPoint.Y = e.Y;
-                }
+                secondPoint.X = (e.X < sedge.X) ? (sedge.X) : (e.X);
+                secondPoint.Y = (e.Y < sedge.Y) ? (sedge.Y) : (e.Y);
+                secondPoint.X = (e.X > eedge.X) ? (eedge.X) : (e.X);
+                secondPoint.Y = (e.Y > eedge.Y) ? (eedge.Y) : (e.Y);
                 secondPoint.X -= sedge.X;
                 secondPoint.X = (int)(secondPoint.X / scale);
                 secondPoint.Y -= sedge.Y;
@@ -388,64 +484,25 @@ namespace TextureRecognition
             }
         }
 
-        private void tsmiSaveResult_Click(object sender, EventArgs e)
+        private void rbSegmentation_CheckedChanged(object sender, EventArgs e)
         {
-            if (recognizedImage == null)
-            {
-                MessageBox.Show("Изображение ещё не распознано");
-                return;
-            }
-
-            if (saveImageDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-            {
-                var ext = System.IO.Path.GetExtension(saveImageDialog.FileName);
-                switch (ext)
-                {
-                    case ".png":
-                        recognizedImage.Save(saveImageDialog.FileName, System.Drawing.Imaging.ImageFormat.Png);
-                        return;
-
-                    case ".bmp":
-                        recognizedImage.Save(saveImageDialog.FileName, System.Drawing.Imaging.ImageFormat.Bmp);
-                        return;
-
-                    case ".jpg":
-                    case ".jpeg":
-                        recognizedImage.Save(saveImageDialog.FileName, System.Drawing.Imaging.ImageFormat.Jpeg);
-                        return;
-
-                    default:
-                        recognizedImage.Save(saveImageDialog.FileName);
-                        return;
-                }
-            }
+            isRecognized = false;
+            btnRecognize.Image = resources.search;
+            btnRecognize.Text = "Распознать\nтекстуры";
         }
 
-        private void UpdateClassesLegend()
+        private void rbRegion_CheckedChanged(object sender, EventArgs e)
         {
-            tsmiLegend.DropDownItems.Clear();
-            for (int i = 0; i < recognition.Core.TextureClassCount; ++i)
-            {
-                var textureClass = recognition.Core.GetTextureClass(i);
-                var classImage = new Bitmap(16, 16);
-                var render = Graphics.FromImage(classImage);
-                render.FillRectangle(new SolidBrush(textureClass.RegionColor), 
-                    0, 0, classImage.Width, classImage.Height);
-                tsmiLegend.DropDownItems.Add(textureClass.Name, classImage);
-            }
+            isRecognized = false;
+            btnRecognize.Image = resources.search;
+            btnRecognize.Text = "Распознать\nтекстуры";
         }
 
-        private void RecognizeImage_VisibleChanged(object sender, EventArgs e)
+        private void rbAllImage_CheckedChanged(object sender, EventArgs e)
         {
-            if (Visible)
-            {
-                UpdateClassesLegend();
-            }
-        }
-
-        private void tsmiOptions_Click(object sender, EventArgs e)
-        {
-            RecognitionOptions.Instance.ShowDialog();
+            isRecognized = false;
+            btnRecognize.Image = resources.search;
+            btnRecognize.Text = "Распознать\nтекстуры";
         }
     }
 }

@@ -31,14 +31,16 @@
             this.msMenu = new System.Windows.Forms.MenuStrip();
             this.tsmiBack = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiClose = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiBatchProcessing = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiSaveResult = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiLegend = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiOptions = new System.Windows.Forms.ToolStripMenuItem();
             this.panelParameters = new System.Windows.Forms.Panel();
             this.cbShowImage = new System.Windows.Forms.CheckBox();
             this.gbRecognitionWays = new System.Windows.Forms.GroupBox();
-            this.rbWay2 = new System.Windows.Forms.RadioButton();
-            this.rbWay1 = new System.Windows.Forms.RadioButton();
+            this.rbAllImage = new System.Windows.Forms.RadioButton();
+            this.rbSegmentation = new System.Windows.Forms.RadioButton();
+            this.rbRegion = new System.Windows.Forms.RadioButton();
             this.gbFeatures = new System.Windows.Forms.GroupBox();
             this.cbFeature2 = new System.Windows.Forms.CheckBox();
             this.cbFeature1 = new System.Windows.Forms.CheckBox();
@@ -48,7 +50,6 @@
             this.pbImage = new System.Windows.Forms.PictureBox();
             this.btnRecognize = new System.Windows.Forms.Button();
             this.btnSelectImage = new System.Windows.Forms.Button();
-            this.btnUpdateImage = new System.Windows.Forms.Button();
             this.msMenu.SuspendLayout();
             this.panelParameters.SuspendLayout();
             this.gbRecognitionWays.SuspendLayout();
@@ -64,10 +65,11 @@
             this.tsmiClose,
             this.tsmiSaveResult,
             this.tsmiLegend,
+            this.tsmiBatchProcessing,
             this.tsmiOptions});
             this.msMenu.Location = new System.Drawing.Point(0, 0);
             this.msMenu.Name = "msMenu";
-            this.msMenu.Size = new System.Drawing.Size(849, 40);
+            this.msMenu.Size = new System.Drawing.Size(744, 40);
             this.msMenu.TabIndex = 0;
             // 
             // tsmiBack
@@ -89,6 +91,14 @@
             this.tsmiClose.Size = new System.Drawing.Size(127, 36);
             this.tsmiClose.Text = "Закрыть";
             this.tsmiClose.Click += new System.EventHandler(this.tsmiClose_Click);
+            // 
+            // tsmiBatchProcessing
+            // 
+            this.tsmiBatchProcessing.Font = new System.Drawing.Font("Segoe UI", 8F);
+            this.tsmiBatchProcessing.Image = global::TextureRecognition.resources.favs;
+            this.tsmiBatchProcessing.Name = "tsmiBatchProcessing";
+            this.tsmiBatchProcessing.Size = new System.Drawing.Size(44, 36);
+            this.tsmiBatchProcessing.Click += new System.EventHandler(this.tsmiBatchProcessing_Click);
             // 
             // tsmiSaveResult
             // 
@@ -124,10 +134,10 @@
             this.panelParameters.Controls.Add(this.cbShowImage);
             this.panelParameters.Controls.Add(this.gbRecognitionWays);
             this.panelParameters.Controls.Add(this.gbFeatures);
-            this.panelParameters.Location = new System.Drawing.Point(12, 225);
+            this.panelParameters.Location = new System.Drawing.Point(12, 165);
             this.panelParameters.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.panelParameters.Name = "panelParameters";
-            this.panelParameters.Size = new System.Drawing.Size(179, 219);
+            this.panelParameters.Size = new System.Drawing.Size(179, 277);
             this.panelParameters.TabIndex = 2;
             // 
             // cbShowImage
@@ -135,7 +145,7 @@
             this.cbShowImage.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.cbShowImage.AutoSize = true;
             this.cbShowImage.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.cbShowImage.Location = new System.Drawing.Point(14, 192);
+            this.cbShowImage.Location = new System.Drawing.Point(14, 250);
             this.cbShowImage.Margin = new System.Windows.Forms.Padding(3, 4, 3, 8);
             this.cbShowImage.Name = "cbShowImage";
             this.cbShowImage.Size = new System.Drawing.Size(142, 17);
@@ -148,42 +158,59 @@
             // 
             this.gbRecognitionWays.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.gbRecognitionWays.Controls.Add(this.rbWay2);
-            this.gbRecognitionWays.Controls.Add(this.rbWay1);
+            this.gbRecognitionWays.Controls.Add(this.rbAllImage);
+            this.gbRecognitionWays.Controls.Add(this.rbSegmentation);
+            this.gbRecognitionWays.Controls.Add(this.rbRegion);
             this.gbRecognitionWays.Location = new System.Drawing.Point(3, 107);
             this.gbRecognitionWays.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.gbRecognitionWays.Name = "gbRecognitionWays";
             this.gbRecognitionWays.Padding = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.gbRecognitionWays.Size = new System.Drawing.Size(171, 78);
+            this.gbRecognitionWays.Size = new System.Drawing.Size(171, 131);
             this.gbRecognitionWays.TabIndex = 1;
             this.gbRecognitionWays.TabStop = false;
-            this.gbRecognitionWays.Text = "Способ распознования";
+            this.gbRecognitionWays.Text = "Режим распознования";
             // 
-            // rbWay2
+            // rbAllImage
             // 
-            this.rbWay2.AutoSize = true;
-            this.rbWay2.Checked = true;
-            this.rbWay2.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.rbWay2.Location = new System.Drawing.Point(11, 52);
-            this.rbWay2.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.rbWay2.Name = "rbWay2";
-            this.rbWay2.Size = new System.Drawing.Size(113, 17);
-            this.rbWay2.TabIndex = 1;
-            this.rbWay2.TabStop = true;
-            this.rbWay2.Text = "всё изображение";
-            this.rbWay2.UseVisualStyleBackColor = true;
+            this.rbAllImage.AutoSize = true;
+            this.rbAllImage.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.rbAllImage.Location = new System.Drawing.Point(11, 92);
+            this.rbAllImage.Margin = new System.Windows.Forms.Padding(8, 4, 3, 4);
+            this.rbAllImage.Name = "rbAllImage";
+            this.rbAllImage.Size = new System.Drawing.Size(124, 30);
+            this.rbAllImage.TabIndex = 2;
+            this.rbAllImage.TabStop = true;
+            this.rbAllImage.Text = "распознование \r\nвсего изображения";
+            this.rbAllImage.UseVisualStyleBackColor = true;
+            this.rbAllImage.CheckedChanged += new System.EventHandler(this.rbAllImage_CheckedChanged);
             // 
-            // rbWay1
+            // rbSegmentation
             // 
-            this.rbWay1.AutoSize = true;
-            this.rbWay1.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.rbWay1.Location = new System.Drawing.Point(11, 24);
-            this.rbWay1.Margin = new System.Windows.Forms.Padding(8, 8, 3, 8);
-            this.rbWay1.Name = "rbWay1";
-            this.rbWay1.Size = new System.Drawing.Size(130, 17);
-            this.rbWay1.TabIndex = 0;
-            this.rbWay1.Text = "выделенная область";
-            this.rbWay1.UseVisualStyleBackColor = true;
+            this.rbSegmentation.AutoSize = true;
+            this.rbSegmentation.Checked = true;
+            this.rbSegmentation.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.rbSegmentation.Location = new System.Drawing.Point(11, 25);
+            this.rbSegmentation.Margin = new System.Windows.Forms.Padding(8, 8, 3, 4);
+            this.rbSegmentation.Name = "rbSegmentation";
+            this.rbSegmentation.Size = new System.Drawing.Size(90, 17);
+            this.rbSegmentation.TabIndex = 1;
+            this.rbSegmentation.TabStop = true;
+            this.rbSegmentation.Text = "сегментация";
+            this.rbSegmentation.UseVisualStyleBackColor = true;
+            this.rbSegmentation.CheckedChanged += new System.EventHandler(this.rbSegmentation_CheckedChanged);
+            // 
+            // rbRegion
+            // 
+            this.rbRegion.AutoSize = true;
+            this.rbRegion.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.rbRegion.Location = new System.Drawing.Point(11, 50);
+            this.rbRegion.Margin = new System.Windows.Forms.Padding(8, 4, 3, 8);
+            this.rbRegion.Name = "rbRegion";
+            this.rbRegion.Size = new System.Drawing.Size(130, 30);
+            this.rbRegion.TabIndex = 0;
+            this.rbRegion.Text = "распознование \r\nвыделенной области";
+            this.rbRegion.UseVisualStyleBackColor = true;
+            this.rbRegion.CheckedChanged += new System.EventHandler(this.rbRegion_CheckedChanged);
             // 
             // gbFeatures
             // 
@@ -242,7 +269,7 @@
             this.pbProgress.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.pbProgress.Maximum = 1000;
             this.pbProgress.Name = "pbProgress";
-            this.pbProgress.Size = new System.Drawing.Size(825, 15);
+            this.pbProgress.Size = new System.Drawing.Size(720, 15);
             this.pbProgress.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
             this.pbProgress.TabIndex = 5;
             // 
@@ -261,7 +288,7 @@
             this.pbImage.Location = new System.Drawing.Point(197, 43);
             this.pbImage.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.pbImage.Name = "pbImage";
-            this.pbImage.Size = new System.Drawing.Size(640, 401);
+            this.pbImage.Size = new System.Drawing.Size(535, 399);
             this.pbImage.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pbImage.TabIndex = 4;
             this.pbImage.TabStop = false;
@@ -300,25 +327,11 @@
             this.btnSelectImage.UseVisualStyleBackColor = true;
             this.btnSelectImage.Click += new System.EventHandler(this.btnSelectImage_Click);
             // 
-            // btnUpdateImage
-            // 
-            this.btnUpdateImage.AutoSize = true;
-            this.btnUpdateImage.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.btnUpdateImage.Image = global::TextureRecognition.resources.refresh;
-            this.btnUpdateImage.Location = new System.Drawing.Point(12, 164);
-            this.btnUpdateImage.Name = "btnUpdateImage";
-            this.btnUpdateImage.Size = new System.Drawing.Size(179, 54);
-            this.btnUpdateImage.TabIndex = 6;
-            this.btnUpdateImage.Text = "Обновить \r\nизображение";
-            this.btnUpdateImage.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
-            this.btnUpdateImage.UseVisualStyleBackColor = true;
-            // 
             // RecognizeImage
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(849, 477);
-            this.Controls.Add(this.btnUpdateImage);
+            this.ClientSize = new System.Drawing.Size(744, 477);
             this.Controls.Add(this.pbProgress);
             this.Controls.Add(this.pbImage);
             this.Controls.Add(this.btnRecognize);
@@ -358,8 +371,8 @@
         private System.Windows.Forms.CheckBox cbFeature1;
         private System.Windows.Forms.CheckBox cbShowImage;
         private System.Windows.Forms.GroupBox gbRecognitionWays;
-        private System.Windows.Forms.RadioButton rbWay2;
-        private System.Windows.Forms.RadioButton rbWay1;
+        private System.Windows.Forms.RadioButton rbSegmentation;
+        private System.Windows.Forms.RadioButton rbRegion;
         private System.Windows.Forms.CheckBox cbFeature2;
         private System.Windows.Forms.OpenFileDialog openImageDialog;
         private System.Windows.Forms.ProgressBar pbProgress;
@@ -367,6 +380,7 @@
         private System.Windows.Forms.SaveFileDialog saveImageDialog;
         private System.Windows.Forms.ToolStripMenuItem tsmiLegend;
         private System.Windows.Forms.ToolStripMenuItem tsmiOptions;
-        private System.Windows.Forms.Button btnUpdateImage;
+        private System.Windows.Forms.RadioButton rbAllImage;
+        private System.Windows.Forms.ToolStripMenuItem tsmiBatchProcessing;
     }
 }

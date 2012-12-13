@@ -30,8 +30,8 @@
         {
             this.lblFragmentSize = new System.Windows.Forms.Label();
             this.tbFragmentSize = new System.Windows.Forms.TextBox();
-            this.lblRejectsLevel = new System.Windows.Forms.Label();
-            this.tbRejectsLevel = new System.Windows.Forms.TextBox();
+            this.lblDeviation = new System.Windows.Forms.Label();
+            this.tbDeviation = new System.Windows.Forms.TextBox();
             this.lblNeigbors = new System.Windows.Forms.Label();
             this.tbNeighbors = new System.Windows.Forms.TextBox();
             this.btnApply = new System.Windows.Forms.Button();
@@ -62,29 +62,29 @@
             this.tbFragmentSize.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.tbFragmentSize_KeyPress);
             this.tbFragmentSize.Leave += new System.EventHandler(this.tbFragmentSize_Leave);
             // 
-            // lblRejectsLevel
+            // lblDeviation
             // 
-            this.lblRejectsLevel.AutoSize = true;
-            this.lblRejectsLevel.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.lblRejectsLevel.Location = new System.Drawing.Point(12, 107);
-            this.lblRejectsLevel.Margin = new System.Windows.Forms.Padding(3, 0, 3, 8);
-            this.lblRejectsLevel.Name = "lblRejectsLevel";
-            this.lblRejectsLevel.Size = new System.Drawing.Size(434, 48);
-            this.lblRejectsLevel.TabIndex = 2;
-            this.lblRejectsLevel.Text = "Уровень значимости для фильтрации отказов \r\nпри обучении";
+            this.lblDeviation.AutoSize = true;
+            this.lblDeviation.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.lblDeviation.Location = new System.Drawing.Point(12, 107);
+            this.lblDeviation.Margin = new System.Windows.Forms.Padding(3, 0, 3, 8);
+            this.lblDeviation.Name = "lblDeviation";
+            this.lblDeviation.Size = new System.Drawing.Size(341, 48);
+            this.lblDeviation.TabIndex = 2;
+            this.lblDeviation.Text = "Веса компонентов дисперсии при\r\nвычеслении растояний между ПМВВ";
             // 
-            // tbRejectsLevel
+            // tbDeviation
             // 
-            this.tbRejectsLevel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.tbRejectsLevel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.tbRejectsLevel.Location = new System.Drawing.Point(16, 166);
-            this.tbRejectsLevel.Margin = new System.Windows.Forms.Padding(3, 3, 3, 8);
-            this.tbRejectsLevel.MaxLength = 10;
-            this.tbRejectsLevel.Name = "tbRejectsLevel";
-            this.tbRejectsLevel.Size = new System.Drawing.Size(104, 23);
-            this.tbRejectsLevel.TabIndex = 1;
-            this.tbRejectsLevel.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.tbRejectsLevel_KeyPress);
-            this.tbRejectsLevel.Leave += new System.EventHandler(this.tbRejectsLevel_Leave);
+            this.tbDeviation.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.tbDeviation.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.tbDeviation.Location = new System.Drawing.Point(16, 166);
+            this.tbDeviation.Margin = new System.Windows.Forms.Padding(3, 3, 3, 8);
+            this.tbDeviation.MaxLength = 10;
+            this.tbDeviation.Name = "tbDeviation";
+            this.tbDeviation.Size = new System.Drawing.Size(104, 23);
+            this.tbDeviation.TabIndex = 1;
+            this.tbDeviation.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.tbRejectsLevel_KeyPress);
+            this.tbDeviation.Leave += new System.EventHandler(this.tbRejectsLevel_Leave);
             // 
             // lblNeigbors
             // 
@@ -147,8 +147,8 @@
             this.Controls.Add(this.btnApply);
             this.Controls.Add(this.tbNeighbors);
             this.Controls.Add(this.lblNeigbors);
-            this.Controls.Add(this.tbRejectsLevel);
-            this.Controls.Add(this.lblRejectsLevel);
+            this.Controls.Add(this.tbDeviation);
+            this.Controls.Add(this.lblDeviation);
             this.Controls.Add(this.tbFragmentSize);
             this.Controls.Add(this.lblFragmentSize);
             this.MaximizeBox = false;
@@ -167,8 +167,8 @@
 
         private System.Windows.Forms.Label lblFragmentSize;
         private System.Windows.Forms.TextBox tbFragmentSize;
-        private System.Windows.Forms.Label lblRejectsLevel;
-        private System.Windows.Forms.TextBox tbRejectsLevel;
+        private System.Windows.Forms.Label lblDeviation;
+        private System.Windows.Forms.TextBox tbDeviation;
         private System.Windows.Forms.Label lblNeigbors;
         private System.Windows.Forms.TextBox tbNeighbors;
         private System.Windows.Forms.Button btnApply;

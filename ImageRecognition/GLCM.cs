@@ -36,15 +36,27 @@ namespace ImageRecognition
         public double GetDistance(GLCMFeature other)
         {
             double result = 0;
+            var dWeight = RecognitionParameters.GLCMDeviationWeight;
             for (int i = 0; i < 8; ++i)
             {
-                result += MathHelpers.Sqr(feature[i] - other[i]);
+                var weight = ((i + 1) % 2 == 2) ? (dWeight) : (1.0);
+                result += weight * MathHelpers.Sqr(feature[i] - other[i]);
             }
             return Math.Sqrt(result);
         }
 
-        public static GLCMFeature BuildStandart(IEnumerable<GLCMFeature> list)
+        public static GLCMFeature BuildStandart(List<GLCMFeature> list)
         {
+            if (list.Count == 0)
+            {
+                return null;
+            }
+
+            if (list.Count == 1)
+            {
+                return list[0];
+            }
+
             var data = new double[16];
             int count = 0;
             foreach (var item in list)
@@ -118,18 +130,30 @@ namespace ImageRecognition
         private byte[,] data;
         private GLCMFeature feature;
         private int width, height;
-        private bool filterRejects;
+        private int fragmentSize;
+        private bool isTeaching;
+        private bool isDivideToFragments;
+        private bool isMultithread;
 
-        public GLCMCreator(ImageGrayData imageData, bool filterRejects = true)
+        public GLCMCreator(ImageGrayData imageData, bool isTeaching, bool isDivideToFragments, bool isMultithread = true)
         {
-            if ((imageData.Width < RecognitionParameters.FragmentsSize) || 
-                (imageData.Height < RecognitionParameters.FragmentsSize))
+            var needSize = RecognitionParameters.RecognitionFragmentSize;
+            if (isTeaching)
             {
-                throw new ArgumentException("Изображение слишком мало. Невозможно создать матрицу взаимной встречаемости");
+                needSize = RecognitionParameters.FragmentsSize;
             }
 
-            this.filterRejects = filterRejects;
-            feature = null;
+            if ((imageData.Width < needSize) || 
+                (imageData.Height < needSize))
+            {
+                throw new ArgumentException("Размер изображения меньше размера фрагмента для разбиения. \n" +
+                    "Невозможно создать матрицу взаимной встречаемости");
+            }
+
+            fragmentSize = needSize;
+            this.isTeaching = isTeaching;
+            this.isDivideToFragments = isDivideToFragments;
+            this.isMultithread = isMultithread;
             PrepareData(imageData);
             ConstructFeature();
         }
@@ -152,15 +176,14 @@ namespace ImageRecognition
 
         private void ConstructFeature()
         {
-            var list = GetSubfeatures();
-            if (!filterRejects)
+            if (isDivideToFragments)
             {
+                var list = GetSubfeatures();
                 feature = GLCMFeature.BuildStandart(list);
             }
             else
             {
-                var filtered = FilterReject(list);
-                feature = GLCMFeature.BuildStandart(filtered);
+                feature = GetGLCMFeature(new Fragment(0, 0, width, height));
             }
         }
 
@@ -168,6 +191,7 @@ namespace ImageRecognition
         {
             var fragments = GetFragments();
             int threadCount = Math.Min(fragments.Count, RecognitionParameters.FragmentProcessThreadCount);
+            threadCount = (isMultithread) ? (threadCount) : (1);
             int threadPart = fragments.Count / threadCount;
             var resetEvents = new ManualResetEvent[threadCount];
             var threadParameters = new GLCMThreadParameter[threadCount];
@@ -178,7 +202,15 @@ namespace ImageRecognition
                     threadPart * i, 
                     ((i + 1) < threadCount) ? (threadPart * (i + 1)) : (fragments.Count), 
                     fragments, resetEvents[i]);
-                ThreadPool.QueueUserWorkItem(new WaitCallback(CalculateGLCM), threadParameters[i]);
+
+                if (threadCount > 1)
+                {
+                    ThreadPool.QueueUserWorkItem(new WaitCallback(CalculateGLCM), threadParameters[i]);
+                }
+                else
+                {
+                    CalculateGLCM(threadParameters[i]);
+                }
             }
             WaitHandle.WaitAll(resetEvents);
 
@@ -193,7 +225,6 @@ namespace ImageRecognition
         private List<Fragment> GetFragments()
         {
             var list = new List<Fragment>();
-            int fragmentSize = RecognitionParameters.FragmentsSize;
             int XCount = width / fragmentSize;
             int YCount = height / fragmentSize;
 
@@ -201,10 +232,8 @@ namespace ImageRecognition
             {
                 for (int y = 0; y < YCount; ++y)
                 {
-                    Fragment fragment;
-                    fragment.fromX = x * fragmentSize;
-                    fragment.fromY = y * fragmentSize;
-                    fragment.size = fragmentSize;
+                    Fragment fragment = new Fragment(x * fragmentSize, y * fragmentSize,
+                        fragmentSize, fragmentSize);
                     list.Add(fragment);
                 }
             }
@@ -213,10 +242,8 @@ namespace ImageRecognition
             {
                 for (int y = 0; y < YCount; ++y)
                 {
-                    Fragment fragment;
-                    fragment.fromX = width - fragmentSize;
-                    fragment.fromY = y * fragmentSize;
-                    fragment.size = fragmentSize;
+                    Fragment fragment = new Fragment(width - fragmentSize, y * fragmentSize,
+                        fragmentSize, fragmentSize);
                     list.Add(fragment);
                 }
             }
@@ -225,20 +252,16 @@ namespace ImageRecognition
             {
                 for (int x = 0; x < XCount; ++x)
                 {
-                    Fragment fragment;
-                    fragment.fromX = x * fragmentSize;
-                    fragment.fromY = height - fragmentSize;
-                    fragment.size = fragmentSize;
+                    Fragment fragment = new Fragment(x * fragmentSize, height - fragmentSize,
+                        fragmentSize, fragmentSize);
                     list.Add(fragment);
                 } 
             }
 
             if ((XCount * fragmentSize < width) || (YCount * fragmentSize < height))
             {
-                Fragment fragment;
-                fragment.fromX = width - fragmentSize;
-                fragment.fromY = height - fragmentSize;
-                fragment.size = fragmentSize;
+                Fragment fragment = new Fragment(width - fragmentSize, height - fragmentSize,
+                    fragmentSize, fragmentSize);
                 list.Add(fragment);
             }
 
@@ -299,8 +322,8 @@ namespace ImageRecognition
         private List<double[,]> GetGLCMList(Fragment fragment, int dx, int dy)
         {
             var result = new List<double[,]>();
-            int toX = fragment.fromX + fragment.size;
-            int toY = fragment.fromY + fragment.size;
+            int toX = fragment.fromX + fragment.width;
+            int toY = fragment.fromY + fragment.height;
             for (int i = 1; i < RecognitionParameters.GLCMMaxDisplacementDistance; ++i)
             {
                 var glcm = new double[RecognitionParameters.GLCMSize, RecognitionParameters.GLCMSize];
@@ -326,8 +349,8 @@ namespace ImageRecognition
 
         private bool IsInFragment(int x, int y, Fragment fragment)
         {
-            return (x >= fragment.fromX) && (x < fragment.fromX + fragment.size) &&
-                (y >= fragment.fromY) && (y < fragment.size);
+            return (x >= fragment.fromX) && (x < fragment.fromX + fragment.width) &&
+                (y >= fragment.fromY) && (y < fragment.fromY + fragment.height);
         }
 
         private void NormalizeGLCM(double[,] glcm, int dx, int dy)
@@ -366,48 +389,6 @@ namespace ImageRecognition
                 }
             }
             return new double[] { homogeneity, contrast, energy, entropy };
-        }
-
-        private List<GLCMFeature> FilterReject(List<GLCMFeature> list)
-        {
-            var standart = GLCMFeature.BuildStandart(list);
-            var average = GetAverageDistance(list, standart);
-            var deviation = GetDeviationDistance(list, standart, average);
-            var goodfeatures = new List<GLCMFeature>();
-            var studentTTest = alglib.studenttdistr.studenttdistribution(
-                list.Count - 1, RecognitionParameters.RejectSignificanceLevel);
-            for (int i = 0; i < list.Count; ++i)
-            {
-                var distance = list[i].GetDistance(standart);
-                var value = (distance - average) / deviation;
-                if (value < studentTTest)
-                {
-                    goodfeatures.Add(list[i]);
-                }
-            }
-            return goodfeatures;
-        }
-
-        private double GetAverageDistance(List<GLCMFeature> list, GLCMFeature standart)
-        {
-            double sum = 0;
-            int count = list.Count;
-            for (int i = 0; i < count; ++i)
-            {
-                sum += list[i].GetDistance(standart);
-            }
-            return sum / count;
-        }
-
-        private double GetDeviationDistance(List<GLCMFeature> list, GLCMFeature standart, double average)
-        {
-            double sum = 0;
-            int count = list.Count;
-            for (int i = 0; i < count; ++i)
-            {
-                sum += MathHelpers.Sqr(list[i].GetDistance(standart) - average);
-            }
-            return Math.Sqrt(sum / (count - 1));
         }
 
         public GLCMFeature Feature

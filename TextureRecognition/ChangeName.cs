@@ -42,6 +42,20 @@ namespace TextureRecognition
             }
         }
 
+        private void ChangeName_VisibleChanged(object sender, EventArgs e)
+        {
+            if (recognition.CurrentClass != null)
+            {
+                tbName.Text = recognition.CurrentClass.Name;
+            }
+            else
+            {
+                tbName.Text = "Текстура";
+            }
+            tbName.Focus();
+            tbName.SelectAll();
+        }
+
         private void btnApply_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(tbName.Text))
@@ -74,20 +88,6 @@ namespace TextureRecognition
             {
                 btnApply_Click(sender, e);
             }
-        }
-
-        private void ChangeName_VisibleChanged(object sender, EventArgs e)
-        {
-            if (recognition.CurrentClass != null)
-            {
-                tbName.Text = recognition.CurrentClass.Name;
-            }
-            else
-            {
-                tbName.Text = "Текстура";
-            }
-            tbName.Focus();
-            tbName.SelectAll();
         }
     }
 }

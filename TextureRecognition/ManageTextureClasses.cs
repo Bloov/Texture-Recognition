@@ -50,6 +50,38 @@ namespace TextureRecognition
             }
         }
 
+        private void ManageTextureClasses_VisibleChanged(object sender, EventArgs e)
+        {
+            if (Visible)
+            {
+                if (cbList.Items.Count > 0)
+                {
+                    btnTeach.Enabled = true;
+                    btnDelete.Enabled = true;
+                    cbList.SelectedIndex = 0;
+                }
+                else
+                {
+                    btnTeach.Enabled = false;
+                    btnDelete.Enabled = false;
+                }
+                UpdateClassesList();
+                UpdateColor();
+                Focus();
+            }
+        }
+
+        private void UpdateClassesList()
+        {
+            cbList.SelectedIndex = -1;
+            cbList.Items.Clear();
+            for (int i = 0; i < recognition.Core.TextureClassCount; ++i)
+            {
+                cbList.Items.Add(recognition.Core.GetTextureClass(i).Name);
+            }
+            cbList.SelectedIndex = recognition.Core.TextureClassCount - 1;
+        }
+
         private void UpdateColor()
         {
             var render = Graphics.FromImage(currentClassImage);
@@ -69,17 +101,6 @@ namespace TextureRecognition
             {
                 pbColor2.Image = null;
             }
-        }
-
-        private void UpdateClassesList()
-        {
-            cbList.SelectedIndex = -1;
-            cbList.Items.Clear();
-            for (int i = 0; i < recognition.Core.TextureClassCount; ++i)
-            {
-                cbList.Items.Add(recognition.Core.GetTextureClass(i).Name);
-            }
-            cbList.SelectedIndex = recognition.Core.TextureClassCount - 1;
         }
 
         private void btnSelectColor_Click(object sender, EventArgs e)
@@ -130,8 +151,8 @@ namespace TextureRecognition
         {
             recognition.CurrentClass = recognition.Core.GetTextureClass(cbList.SelectedItem.ToString());
 
-            Hide();
-            TeachTextureClass.Instance.Show();
+            //Hide();
+            TeachTextureClass.Instance.ShowDialog();
         }
 
         private void tsmiExit_Click(object sender, EventArgs e)
@@ -155,24 +176,6 @@ namespace TextureRecognition
                 btnDelete.Enabled = false;
             }
             UpdateColor();
-        }
-
-        private void ManageTextureClasses_VisibleChanged(object sender, EventArgs e)
-        {
-            if (cbList.Items.Count > 0)
-            {
-                btnTeach.Enabled = true;
-                btnDelete.Enabled = true;
-                cbList.SelectedIndex = 0;
-            }
-            else
-            {
-                btnTeach.Enabled = false;
-                btnDelete.Enabled = false;
-            }
-            UpdateClassesList();
-            UpdateColor();
-            this.Focus();
-        }        
+        }       
     }
 }

@@ -18,3 +18,4 @@ D:\Знания\Универ\МРО\Курсовой\TextureRecognition\TextureR
 D:\Знания\Универ\МРО\Курсовой\TextureRecognition\TextureRecognition\obj\Release\TextureRecognition.RecognizeImage.resources
 D:\Знания\Универ\МРО\Курсовой\TextureRecognition\TextureRecognition\obj\Release\TextureRecognition.ChangeName.resources
 D:\Знания\Универ\МРО\Курсовой\TextureRecognition\TextureRecognition\obj\Release\TextureRecognition.RecognitionOptions.resources
+D:\Знания\Универ\МРО\Курсовой\TextureRecognition\TextureRecognition\obj\Release\TextureRecognition.BatchProcessing.resources

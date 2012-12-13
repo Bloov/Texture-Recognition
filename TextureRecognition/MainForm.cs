@@ -21,6 +21,7 @@ namespace TextureRecognition
         private RecognizeImage recognizeImageWindow;
         private ChangeName changeNameWindow;
         private RecognitionOptions recognitionOptionsWindow;
+        private BatchProcessing batchProcessingWindow;
         private TextureRecognition recognition;
 
         public MainForm()
@@ -34,6 +35,7 @@ namespace TextureRecognition
             recognizeImageWindow = new RecognizeImage();
             changeNameWindow = new ChangeName();
             recognitionOptionsWindow = new RecognitionOptions();
+            batchProcessingWindow = new BatchProcessing();
 
             recognition = TextureRecognition.Instance;
         }
@@ -46,21 +48,12 @@ namespace TextureRecognition
             }
         }
 
-        private void tsmiExit_Click(object sender, EventArgs e)
+        private void MainForm_VisibleChanged(object sender, EventArgs e)
         {
-            Close();
-        }
-
-        private void tsmiTeaching_Click(object sender, EventArgs e)
-        {
-            manageTexturesWindow.Show();
-            Hide();
-        }
-
-        private void tsmiRecognition_Click(object sender, EventArgs e)
-        {
-            recognizeImageWindow.Show();
-            Hide();
+            if (Visible)
+            {
+                Focus();
+            }
         }
 
         private void tsmiResetKnowledges_Click(object sender, EventArgs e)
@@ -71,9 +64,21 @@ namespace TextureRecognition
             }
         }
 
-        private void tsmiTeaching_VisibleChanged(object sender, EventArgs e)
+        private void tsmiExit_Click(object sender, EventArgs e)
         {
-            this.Focus();
+            Close();
+        }
+
+        private void tsmiTeaching_Click(object sender, EventArgs e)
+        {
+            manageTexturesWindow.ShowDialog();
+            //Hide();
+        }
+
+        private void tsmiRecognition_Click(object sender, EventArgs e)
+        {
+            recognizeImageWindow.ShowDialog();
+            //Hide();
         }
     }
 }

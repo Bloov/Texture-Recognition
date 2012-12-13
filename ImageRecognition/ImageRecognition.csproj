@@ -52,7 +52,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RecognitionCore.cs" />
     <Compile Include="RecognitionParameters.cs" />
-    <Compile Include="SubImageSample.cs" />
+    <Compile Include="TextureSample.cs" />
     <Compile Include="TextureClass.cs" />
   </ItemGroup>
   <ItemGroup>

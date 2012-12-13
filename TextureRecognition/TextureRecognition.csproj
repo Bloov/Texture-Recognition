@@ -50,6 +50,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BatchProcessing.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="BatchProcessing.Designer.cs">
+      <DependentUpon>BatchProcessing.cs</DependentUpon>
+    </Compile>
     <Compile Include="ChangeName.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -94,6 +100,9 @@
       <DependentUpon>TeachTextureClass.cs</DependentUpon>
     </Compile>
     <Compile Include="TextureRecognition.cs" />
+    <EmbeddedResource Include="BatchProcessing.resx">
+      <DependentUpon>BatchProcessing.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="ChangeName.resx">
       <DependentUpon>ChangeName.cs</DependentUpon>
     </EmbeddedResource>
@@ -193,6 +202,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\settings.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\folder1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\favs.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
