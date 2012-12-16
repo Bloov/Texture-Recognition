@@ -204,9 +204,6 @@
     <None Include="Resources\settings.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\folder1.png" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\favs.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

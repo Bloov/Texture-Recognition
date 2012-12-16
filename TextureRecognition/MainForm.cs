@@ -64,6 +64,22 @@ namespace TextureRecognition
             }
         }
 
+        private void tsmiSaveKnoledges_Click(object sender, EventArgs e)
+        {
+            if (saveKnowledgesDialog.ShowDialog() == DialogResult.OK)
+            {
+                recognition.Core.SaveKnowledges(saveKnowledgesDialog.FileName);
+            }
+        }
+
+        private void tsmiLoadKnowledges_Click(object sender, EventArgs e)
+        {
+            if (openKnowledgesDialog.ShowDialog() == DialogResult.OK)
+            {
+                recognition.Core.LoadKnowledges(openKnowledgesDialog.FileName);
+            }
+        }
+
         private void tsmiExit_Click(object sender, EventArgs e)
         {
             Close();
@@ -72,13 +88,13 @@ namespace TextureRecognition
         private void tsmiTeaching_Click(object sender, EventArgs e)
         {
             manageTexturesWindow.ShowDialog();
-            //Hide();
+            Focus();
         }
 
         private void tsmiRecognition_Click(object sender, EventArgs e)
         {
             recognizeImageWindow.ShowDialog();
-            //Hide();
+            Focus();
         }
     }
 }

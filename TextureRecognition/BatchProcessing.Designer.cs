@@ -33,6 +33,7 @@
             this.msMenu = new System.Windows.Forms.MenuStrip();
             this.tsmiBack = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiClose = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiOptions = new System.Windows.Forms.ToolStripMenuItem();
             this.openImageDialog = new System.Windows.Forms.OpenFileDialog();
             this.btnRecognitionControl = new System.Windows.Forms.Button();
             this.btnDeleteSelected = new System.Windows.Forms.Button();
@@ -41,9 +42,9 @@
             this.splitContainer = new System.Windows.Forms.SplitContainer();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.lwImages = new System.Windows.Forms.ListView();
+            this.pbProgress = new System.Windows.Forms.ProgressBar();
             this.pbImage = new System.Windows.Forms.PictureBox();
             this.lbResult = new System.Windows.Forms.ListBox();
-            this.pbProgress = new System.Windows.Forms.ProgressBar();
             this.msMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
@@ -62,7 +63,8 @@
             this.msMenu.ImageScalingSize = new System.Drawing.Size(32, 32);
             this.msMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsmiBack,
-            this.tsmiClose});
+            this.tsmiClose,
+            this.tsmiOptions});
             this.msMenu.Location = new System.Drawing.Point(0, 0);
             this.msMenu.Name = "msMenu";
             this.msMenu.Size = new System.Drawing.Size(604, 40);
@@ -86,6 +88,15 @@
             this.tsmiClose.Size = new System.Drawing.Size(127, 36);
             this.tsmiClose.Text = "Закрыть";
             this.tsmiClose.Click += new System.EventHandler(this.tsmiClose_Click);
+            // 
+            // tsmiOptions
+            // 
+            this.tsmiOptions.Font = new System.Drawing.Font("Segoe UI", 14F);
+            this.tsmiOptions.Image = global::TextureRecognition.resources.settings;
+            this.tsmiOptions.Name = "tsmiOptions";
+            this.tsmiOptions.Size = new System.Drawing.Size(156, 36);
+            this.tsmiOptions.Text = "Параметры";
+            this.tsmiOptions.Click += new System.EventHandler(this.tsmiOptions_Click);
             // 
             // openImageDialog
             // 
@@ -169,7 +180,7 @@
             // 
             // splitContainer.Panel2
             // 
-            this.splitContainer.Panel2.Controls.Add(this.lbResult);
+            this.splitContainer.Panel2.Controls.Add(this.pbImage);
             this.splitContainer.Panel2MinSize = 100;
             this.splitContainer.Size = new System.Drawing.Size(580, 321);
             this.splitContainer.SplitterDistance = 366;
@@ -190,7 +201,7 @@
             // 
             // splitContainer1.Panel2
             // 
-            this.splitContainer1.Panel2.Controls.Add(this.pbImage);
+            this.splitContainer1.Panel2.Controls.Add(this.lbResult);
             this.splitContainer1.Size = new System.Drawing.Size(366, 321);
             this.splitContainer1.SplitterDistance = 217;
             this.splitContainer1.SplitterWidth = 6;
@@ -216,27 +227,6 @@
             this.lwImages.UseCompatibleStateImageBehavior = false;
             this.lwImages.SelectedIndexChanged += new System.EventHandler(this.lwImages_SelectedIndexChanged);
             // 
-            // pbImage
-            // 
-            this.pbImage.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pbImage.Location = new System.Drawing.Point(0, 0);
-            this.pbImage.Name = "pbImage";
-            this.pbImage.Size = new System.Drawing.Size(364, 96);
-            this.pbImage.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.pbImage.TabIndex = 0;
-            this.pbImage.TabStop = false;
-            // 
-            // lbResult
-            // 
-            this.lbResult.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.lbResult.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lbResult.FormattingEnabled = true;
-            this.lbResult.Location = new System.Drawing.Point(0, 0);
-            this.lbResult.Name = "lbResult";
-            this.lbResult.SelectionMode = System.Windows.Forms.SelectionMode.None;
-            this.lbResult.Size = new System.Drawing.Size(206, 319);
-            this.lbResult.TabIndex = 0;
-            // 
             // pbProgress
             // 
             this.pbProgress.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
@@ -247,6 +237,27 @@
             this.pbProgress.Size = new System.Drawing.Size(580, 15);
             this.pbProgress.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
             this.pbProgress.TabIndex = 13;
+            // 
+            // pbImage
+            // 
+            this.pbImage.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pbImage.Location = new System.Drawing.Point(0, 0);
+            this.pbImage.Name = "pbImage";
+            this.pbImage.Size = new System.Drawing.Size(206, 319);
+            this.pbImage.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pbImage.TabIndex = 1;
+            this.pbImage.TabStop = false;
+            // 
+            // lbResult
+            // 
+            this.lbResult.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.lbResult.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lbResult.FormattingEnabled = true;
+            this.lbResult.Location = new System.Drawing.Point(0, 0);
+            this.lbResult.Name = "lbResult";
+            this.lbResult.SelectionMode = System.Windows.Forms.SelectionMode.None;
+            this.lbResult.Size = new System.Drawing.Size(364, 96);
+            this.lbResult.TabIndex = 1;
             // 
             // BatchProcessing
             // 
@@ -294,8 +305,9 @@
         private System.Windows.Forms.SplitContainer splitContainer;
         private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.ListView lwImages;
-        private System.Windows.Forms.PictureBox pbImage;
-        private System.Windows.Forms.ListBox lbResult;
         private System.Windows.Forms.ProgressBar pbProgress;
+        private System.Windows.Forms.ToolStripMenuItem tsmiOptions;
+        private System.Windows.Forms.ListBox lbResult;
+        private System.Windows.Forms.PictureBox pbImage;
     }
 }

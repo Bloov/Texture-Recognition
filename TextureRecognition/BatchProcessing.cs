@@ -60,7 +60,10 @@ namespace TextureRecognition
 
         private void BatchProcessing_VisibleChanged(object sender, EventArgs e)
         {
-
+            if (Visible)
+            {
+                Focus();
+            }
         }
 
         private void tsmiBack_Click(object sender, EventArgs e)
@@ -75,6 +78,12 @@ namespace TextureRecognition
             {
                 MainForm.Instance.Close();
             }
+        }
+
+        private void tsmiOptions_Click(object sender, EventArgs e)
+        {
+            RecognitionOptions.Instance.ShowDialog();
+            Focus();
         }
 
         private void lwImages_SelectedIndexChanged(object sender, EventArgs e)
@@ -142,6 +151,20 @@ namespace TextureRecognition
 
         private void btnRecognitionControl_Click(object sender, EventArgs e)
         {
+            if (imagesToRecognition.Count == 0)
+            {
+                MessageBox.Show("Не выбраны изображения для распознования.");
+                return;            
+            }
+
+            tsmiBack.Enabled = false;
+            tsmiClose.Enabled = false;
+            tsmiOptions.Enabled = false;
+            btnSelectFiles.Enabled = false;
+            btnDeleteSelected.Enabled = false;
+            btnDeleteAll.Enabled = false;
+            btnRecognitionControl.Enabled = false;
+            
             ThreadPool.QueueUserWorkItem(new WaitCallback(RecognizeProcess));
             ThreadPool.QueueUserWorkItem(new WaitCallback(RecognizeControl));
         }
@@ -165,46 +188,50 @@ namespace TextureRecognition
         {
             var glcmDictionary = new Dictionary<TextureClass, int>();
             var lbpDictionary = new Dictionary<TextureClass, int>();
+            CountAnswers(answers, glcmDictionary, lbpDictionary);
             var strings = new List<string>();
-            foreach (var answer in answers)
-            {
-                var glcmClass = answer[TextureFeatures.GLCM];
-                if (glcmDictionary.ContainsKey(glcmClass))
-                {
-                    glcmDictionary[glcmClass] += 1;
-                }
-                else
-                {
-                    glcmDictionary[glcmClass] = 0;
-                }
-
-                var lbpClass = answer[TextureFeatures.LBP];
-                if (lbpDictionary.ContainsKey(lbpClass))
-                {
-                    lbpDictionary[lbpClass] += 1;
-                }
-                else
-                {
-                    lbpDictionary[lbpClass] = 0;
-                }
-
-                strings.Add("GLCM: " + glcmClass.Name + "   LBP: " + lbpClass.Name);
-            }
-            strings.Add(" ");
-
+            strings.Add("Всего образцов: " + imagesToRecognition.Count);
             for (int i = 0; i < recognition.Core.TextureClassCount; ++i)
             {
                 var value = recognition.Core.GetTextureClass(i).Name + " - ";
                 int count = 0;
                 glcmDictionary.TryGetValue(recognition.Core.GetTextureClass(i), out count);
-                value += "GLCM: " + count.ToString() + "   ";
+                value += "GLCM: " + count.ToString() + "; ";
                 lbpDictionary.TryGetValue(recognition.Core.GetTextureClass(i), out count);
-                value += "LBP: " + count.ToString();
+                value += "LBP: " + count.ToString() + "; ";
                 strings.Add(value);
             }
 
             lbResult.Items.Clear();
             lbResult.Items.AddRange(strings.ToArray());
+        }
+
+        private void CountAnswers(List<RecognitionResult> results, 
+            Dictionary<TextureClass, int> glcm, Dictionary<TextureClass, int> lbp)
+        {
+            foreach (var answer in results)
+            {
+                var glcmClass = answer[TextureFeatures.GLCM];
+                if (glcm.ContainsKey(glcmClass))
+                {
+                    glcm[glcmClass] += 1;
+                }
+                else
+                {
+                    glcm[glcmClass] = 1;
+                }
+
+                var lbpClass = answer[TextureFeatures.LBP];
+                if (lbp.ContainsKey(lbpClass))
+                {
+                    lbp[lbpClass] += 1;
+                }
+                else
+                {
+                    lbp[lbpClass] = 1;
+                }
+            }   
+        
         }
 
         private void RecognizeControl(object parameter)
@@ -230,7 +257,13 @@ namespace TextureRecognition
             this.BeginInvoke(
                 new Action(delegate()
                 {
-                    
+                    tsmiBack.Enabled = true;
+                    tsmiClose.Enabled = true;
+                    tsmiOptions.Enabled = true;
+                    btnSelectFiles.Enabled = true;
+                    btnDeleteSelected.Enabled = true;
+                    btnDeleteAll.Enabled = true;
+                    btnRecognitionControl.Enabled = true;   
                 }));
         }
     }

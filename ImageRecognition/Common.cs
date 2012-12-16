@@ -28,12 +28,14 @@ namespace ImageRecognition
 
     public class RecognitionResult
     {
+        private TextureSample sample;
         private Rectangle region;
         private Dictionary<TextureFeatures, TextureClass> answers;
 
-        public RecognitionResult(Rectangle region)
+        public RecognitionResult(Rectangle region, TextureSample sample)
         {
             this.region = region;
+            this.sample = sample;
             answers = new Dictionary<TextureFeatures, TextureClass>();
         }
 
@@ -54,6 +56,14 @@ namespace ImageRecognition
             get
             {
                 return region;
+            }
+        }
+
+        public TextureSample Sample
+        {
+            get
+            {
+                return sample;
             }
         }
 

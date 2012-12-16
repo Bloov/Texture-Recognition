@@ -24,7 +24,7 @@ namespace ImageRecognition
             RecognitionFragmentSize = FragmentsSize;
             GLCMMaxDisplacementDistance = 12;
             GLCMSize = 16;
-            GLCMDeviationWeight = 0.6;
+            GLCMDeviationWeight = 0.68;
         }
 
         public static int NeededNeighborsNumber

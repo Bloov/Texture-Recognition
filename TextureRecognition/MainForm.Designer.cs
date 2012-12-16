@@ -40,6 +40,8 @@
             this.tsmiRecognition = new System.Windows.Forms.ToolStripMenuItem();
             this.panelInfo = new System.Windows.Forms.Panel();
             this.lblInfo = new System.Windows.Forms.Label();
+            this.saveKnowledgesDialog = new System.Windows.Forms.SaveFileDialog();
+            this.openKnowledgesDialog = new System.Windows.Forms.OpenFileDialog();
             this.msMainMenu.SuspendLayout();
             this.panelInfo.SuspendLayout();
             this.SuspendLayout();
@@ -80,12 +82,14 @@
             this.tsmiLoadKnowledges.Name = "tsmiLoadKnowledges";
             this.tsmiLoadKnowledges.Size = new System.Drawing.Size(243, 30);
             this.tsmiLoadKnowledges.Text = "Загрузить знания";
+            this.tsmiLoadKnowledges.Click += new System.EventHandler(this.tsmiLoadKnowledges_Click);
             // 
             // tsmiSaveKnoledges
             // 
             this.tsmiSaveKnoledges.Name = "tsmiSaveKnoledges";
             this.tsmiSaveKnoledges.Size = new System.Drawing.Size(243, 30);
             this.tsmiSaveKnoledges.Text = "Сохранить знания";
+            this.tsmiSaveKnoledges.Click += new System.EventHandler(this.tsmiSaveKnoledges_Click);
             // 
             // tsSeparator
             // 
@@ -134,6 +138,17 @@
             this.lblInfo.Text = resources.GetString("lblInfo.Text");
             this.lblInfo.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
+            // saveKnowledgesDialog
+            // 
+            this.saveKnowledgesDialog.DefaultExt = "*.xml";
+            this.saveKnowledgesDialog.Filter = "XML Files|*.xml";
+            // 
+            // openKnowledgesDialog
+            // 
+            this.openKnowledgesDialog.DefaultExt = "*.xml";
+            this.openKnowledgesDialog.FileName = "openFileDialog1";
+            this.openKnowledgesDialog.Filter = "XML Files|*.xml";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -167,6 +182,8 @@
         private System.Windows.Forms.ToolStripSeparator tsSeparator;
         private System.Windows.Forms.Panel panelInfo;
         private System.Windows.Forms.Label lblInfo;
+        private System.Windows.Forms.SaveFileDialog saveKnowledgesDialog;
+        private System.Windows.Forms.OpenFileDialog openKnowledgesDialog;
     }
 }
 

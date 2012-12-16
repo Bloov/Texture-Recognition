@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Xml;
 using ImageProcessing;
 
 namespace ImageRecognition
 {
-    public class LBPFeature
+    public sealed class LBPFeature
     {
         double[] data;
 
@@ -15,6 +16,36 @@ namespace ImageRecognition
             for (int i = 0; i < 18; ++i)
             {
                 data[i] = vector[i];
+            }
+        }
+
+        internal LBPFeature()
+        {
+            data = new double[18];
+        }
+
+        internal void SaveKnowledges(XmlElement element, XmlDocument parent)
+        {
+            var lbpData = parent.CreateElement("LBP");
+            var sourceData = parent.CreateElement("data");
+            for (int i = 0; i < 18; ++i)
+            {
+                var attribute = parent.CreateAttribute("d" + i.ToString());
+                attribute.Value = data[i].ToString();
+                sourceData.Attributes.Append(attribute);
+            }
+            lbpData.AppendChild(sourceData);
+            element.AppendChild(lbpData);
+        }
+
+        internal void LoadKnowledges(XmlNode node)
+        {
+            var featureData = node.ChildNodes[0];
+            for (int i = 0; i < 18; ++i)
+            {
+                double value;
+                double.TryParse(featureData.Attributes["d" + i.ToString()].Value, out value);
+                data[i] = value;
             }
         }
 

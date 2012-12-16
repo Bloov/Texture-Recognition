@@ -73,7 +73,7 @@ namespace TextureRecognition
                 RecognitionParameters.FragmentsSize.ToString() + " )";
             tbNeighbors.Text = RecognitionParameters.NeededNeighborsNumber.ToString();
             tbDeviation.Text = RecognitionParameters.GLCMDeviationWeight.ToString("F3");
-            tbFragmentSize.Text = RecognitionParameters.FragmentsSize.ToString();
+            tbFragmentSize.Text = RecognitionParameters.RecognitionFragmentSize.ToString();
             tbFragmentSize.SelectAll();
             tbFragmentSize.Focus();
         }
@@ -94,7 +94,7 @@ namespace TextureRecognition
 
         private void tbRejectsLevel_KeyPress(object sender, KeyPressEventArgs e)
         {
-            if (char.IsDigit(e.KeyChar) || (e.KeyChar == '.') || char.IsControl(e.KeyChar))
+            if (char.IsDigit(e.KeyChar) || (e.KeyChar == ',') || char.IsControl(e.KeyChar))
             {
                 if (e.KeyChar == 13)
                 {

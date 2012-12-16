@@ -93,9 +93,19 @@ namespace TextureRecognition
             Hide();
         }
 
+        private void tsmiBatchProcessing_Click(object sender, EventArgs e)
+        {
+            BatchProcessing.Instance.ShowDialog();
+            Focus();
+        }
+
         private void tsmiOptions_Click(object sender, EventArgs e)
         {
             RecognitionOptions.Instance.ShowDialog();
+            Focus();
+            isRecognized = false;
+            btnRecognize.Image = resources.search;
+            btnRecognize.Text = "Распознать\nтекстуры";
         }
 
         private void tsmiSaveResult_Click(object sender, EventArgs e)
@@ -129,11 +139,6 @@ namespace TextureRecognition
                         return;
                 }
             }
-        }
-
-        private void tsmiBatchProcessing_Click(object sender, EventArgs e)
-        {
-            BatchProcessing.Instance.ShowDialog();
         }
 
         private void cbFeature1_CheckedChanged(object sender, EventArgs e)
@@ -239,6 +244,7 @@ namespace TextureRecognition
             btnRecognize.Enabled = false;
             btnSelectImage.Enabled = false;
             panelParameters.Enabled = false;
+            tsmiBatchProcessing.Enabled = false;
             tsmiOptions.Enabled = false;
             tsmiSaveResult.Enabled = false;
             tsmiBack.Enabled = false;
@@ -307,6 +313,7 @@ namespace TextureRecognition
 
                         btnSelectImage.Enabled = true;
                         panelParameters.Enabled = true;
+                        tsmiBatchProcessing.Enabled = true;
                         tsmiOptions.Enabled = true;
                         tsmiSaveResult.Enabled = true;
                         tsmiBack.Enabled = true;

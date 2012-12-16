@@ -4,6 +4,8 @@ using System.Collections;
 using System.Threading;
 using System.Drawing;
 using System.Windows.Forms;
+using System.Linq;
+using System.Xml;
 using ImageProcessing;
 
 namespace ImageRecognition
@@ -57,6 +59,59 @@ namespace ImageRecognition
             knownFiles = new List<string>();
             glcmFeatures = new List<GLCMFeature>();
             lbpFeatures = new List<LBPFeature>();
+        }
+
+        internal void SaveKnowledges(XmlElement element, XmlDocument parent)
+        {
+            var data = parent.CreateElement("class");
+            var idAttribute = parent.CreateAttribute("id");
+            idAttribute.Value = element.ChildNodes.Count.ToString();
+            var nameAttribute = parent.CreateAttribute("name");
+            nameAttribute.Value = Name;
+            var rAttribute = parent.CreateAttribute("R");
+            rAttribute.Value = RegionColor.R.ToString();
+            var gAttribute = parent.CreateAttribute("G");
+            gAttribute.Value = RegionColor.G.ToString();
+            var bAttribute = parent.CreateAttribute("B");
+            bAttribute.Value = RegionColor.B.ToString();
+            data.Attributes.Append(idAttribute);
+            data.Attributes.Append(nameAttribute);
+            data.Attributes.Append(rAttribute);
+            data.Attributes.Append(gAttribute);
+            data.Attributes.Append(bAttribute);
+            for (int i = 0; i < featuresCount; ++i)
+            {
+                var point = parent.CreateElement("sample");
+                var file = parent.CreateElement("file");
+                var path = parent.CreateAttribute("path");
+                path.Value = knownFiles[i];
+                file.Attributes.Append(path);
+                point.AppendChild(file);
+                glcmFeatures[i].SaveKnowledges(point, parent);
+                lbpFeatures[i].SaveKnowledges(point, parent);
+                data.AppendChild(point);
+            }
+            element.AppendChild(data);
+        }
+
+        internal void LoadKnowledges(XmlNode node)
+        {
+            Name = node.Attributes["name"].Value;
+            int r, g, b;
+            int.TryParse(node.Attributes["R"].Value, out r);
+            int.TryParse(node.Attributes["G"].Value, out g);
+            int.TryParse(node.Attributes["B"].Value, out b);
+            RegionColor = Color.FromArgb(r, g, b);
+            var samples = node.ChildNodes;
+            foreach (XmlNode item in samples)
+            {
+                var file = item.ChildNodes[0].Attributes["path"].Value;
+                var glcm = new GLCMFeature();
+                glcm.LoadKnowledges(item.ChildNodes[1]);
+                var lbp = new LBPFeature();
+                lbp.LoadKnowledges(item.ChildNodes[2]);
+                AddFeatures(glcm, lbp, file);
+            }
         }
 
         public void Teach(List<string> files, List<Bitmap> images)

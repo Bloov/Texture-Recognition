@@ -5,6 +5,7 @@ using System.Linq;
 using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
+using System.Xml;
 using ImageProcessing;
 
 namespace ImageRecognition
@@ -81,12 +82,29 @@ namespace ImageRecognition
 
         public void LoadKnowledges(string url)
         {
-
+            RemoveAllTextureClasses();
+            var xml = new XmlDocument();
+            xml.Load(url);
+            var classes = xml.GetElementsByTagName("class");
+            foreach (XmlNode item in classes)
+            {
+                var textureClass = new TextureClass("Texture", Color.Red);
+                textureClass.LoadKnowledges(item);
+                knownClasses.Add(textureClass);
+            }
         }
 
         public void SaveKnowledges(string url)
         {
-
+            var xml = new XmlDocument();
+            xml.CreateProcessingInstruction("xml", @"version=""1.0"" encoding=""WINDOWS-1251""");
+            var classes = xml.CreateElement("classes");
+            foreach (var item in knownClasses)
+            {
+                item.SaveKnowledges(classes, xml); 
+            }
+            xml.AppendChild(classes);
+            xml.Save(url);
         }
 
         public TextureClass AddTextureClass(string name, Color color)
@@ -362,7 +380,7 @@ namespace ImageRecognition
 
         private RecognitionResult GetBestMatch(TextureSample sample, Rectangle region)
         {
-            var answer = new RecognitionResult(region);
+            var answer = new RecognitionResult(region, sample);
             answer.AddAnswer(TextureFeatures.GLCM, GetBestMatchForFeature(sample, TextureFeatures.GLCM));
             answer.AddAnswer(TextureFeatures.LBP, GetBestMatchForFeature(sample, TextureFeatures.LBP));
             return answer;

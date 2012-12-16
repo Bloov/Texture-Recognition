@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Xml;
 using ImageProcessing;
 
 namespace ImageRecognition
@@ -18,6 +19,57 @@ namespace ImageRecognition
             {
                 feature[i * 2] = MathHelpers.GetAverage(source, i * 4, 4);
                 feature[i * 2 + 1] = Math.Sqrt(MathHelpers.GetVariance(source, feature[i * 2], i * 4, 4));
+            }
+        }
+
+        internal GLCMFeature()
+        {
+            source = new double[16];
+            feature = new double[8];
+        }
+
+        internal void SaveKnowledges(XmlElement element, XmlDocument parent)
+        {
+            var data = parent.CreateElement("GLCM");
+
+            var sourceData = parent.CreateElement("source");
+            for (int i = 0; i < 16; ++i)
+            {
+                var attribute = parent.CreateAttribute("s" + i.ToString());
+                attribute.Value = source[i].ToString();
+                sourceData.Attributes.Append(attribute);
+            }
+            data.AppendChild(sourceData);
+
+            var featureData = parent.CreateElement("feature");
+            for (int i = 0; i < 8; ++i)
+            {
+                var attribute = parent.CreateAttribute("f" + i.ToString());
+                attribute.Value = feature[i].ToString();
+                featureData.Attributes.Append(attribute);
+            
+            }
+            data.AppendChild(featureData);
+
+            element.AppendChild(data);
+        }
+
+        internal void LoadKnowledges(XmlNode node)
+        {
+            var sourceData = node.ChildNodes[0];
+            for (int i = 0; i < 16; ++i)
+            {
+                double value;
+                double.TryParse(sourceData.Attributes["s" + i.ToString()].Value, out value);
+                source[i] = value;
+            }
+
+            var featureData = node.ChildNodes[1];
+            for (int i = 0; i < 8; ++i)
+            {
+                double value;
+                double.TryParse(featureData.Attributes["f" + i.ToString()].Value, out value);
+                feature[i] = value;
             }
         }
 
