@@ -18,13 +18,13 @@ namespace ImageRecognition
 
         static RecognitionParameters()
         {
-            NeededNeighborsNumber = 8;
+            NeededNeighborsNumber = 6;
             FragmentProcessThreadCount = Environment.ProcessorCount;
             FragmentsSize = 40;
             RecognitionFragmentSize = FragmentsSize;
             GLCMMaxDisplacementDistance = 12;
             GLCMSize = 16;
-            GLCMDeviationWeight = 0.68;
+            GLCMDeviationWeight = 0.75;
         }
 
         public static int NeededNeighborsNumber

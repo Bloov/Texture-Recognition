@@ -3,7 +3,6 @@ D:\Знания\Универ\МРО\Курсовой\TextureRecognition\Recognit
 D:\Знания\Универ\МРО\Курсовой\TextureRecognition\RecognitionSpeedTest\bin\Release\RecognitionSpeedTest.pdb
 D:\Знания\Универ\МРО\Курсовой\TextureRecognition\RecognitionSpeedTest\bin\Release\ImageProcessing.dll
 D:\Знания\Универ\МРО\Курсовой\TextureRecognition\RecognitionSpeedTest\bin\Release\ImageRecognition.dll
-D:\Знания\Универ\МРО\Курсовой\TextureRecognition\RecognitionSpeedTest\bin\Release\alglibnet2.dll
 D:\Знания\Универ\МРО\Курсовой\TextureRecognition\RecognitionSpeedTest\bin\Release\ImageProcessing.pdb
 D:\Знания\Универ\МРО\Курсовой\TextureRecognition\RecognitionSpeedTest\bin\Release\ImageRecognition.pdb
 D:\Знания\Универ\МРО\Курсовой\TextureRecognition\RecognitionSpeedTest\obj\Release\RecognitionSpeedTest.csprojResolveAssemblyReference.cache

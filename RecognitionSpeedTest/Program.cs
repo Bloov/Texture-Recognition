@@ -18,7 +18,7 @@ namespace RecognitionSpeedTest
 
         static void Main(string[] args)
         {
-            timer = new Stopwatch();
+        /*    timer = new Stopwatch();
             long totalTime = 0;
             
             Console.WriteLine("Load test");
