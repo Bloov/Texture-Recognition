@@ -1,8 +1,0 @@
-D:\Знания\Универ\МРО\Курсовой\TextureRecognition\ImageRecognition\bin\Release\ImageRecognition.dll
-D:\Знания\Универ\МРО\Курсовой\TextureRecognition\ImageRecognition\bin\Release\ImageRecognition.pdb
-D:\Знания\Универ\МРО\Курсовой\TextureRecognition\ImageRecognition\bin\Release\alglibnet2.dll
-D:\Знания\Универ\МРО\Курсовой\TextureRecognition\ImageRecognition\bin\Release\ImageProcessing.dll
-D:\Знания\Универ\МРО\Курсовой\TextureRecognition\ImageRecognition\bin\Release\ImageProcessing.pdb
-D:\Знания\Универ\МРО\Курсовой\TextureRecognition\ImageRecognition\obj\Release\ImageRecognition.csprojResolveAssemblyReference.cache
-D:\Знания\Универ\МРО\Курсовой\TextureRecognition\ImageRecognition\obj\Release\ImageRecognition.dll
-D:\Знания\Универ\МРО\Курсовой\TextureRecognition\ImageRecognition\obj\Release\ImageRecognition.pdb
