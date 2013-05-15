@@ -1,8 +1,9 @@
 /*.vsp
-obj
-bin
 /RecognitionSpeedTest/obj
 /RecognitionSpeedTest/bin
+/ImageProcessing/obj
 /ImageProcessing/bin
 /TextureRecognition/obj
 /TextureRecognition/bin
+/ImageRecognition/obj
+/ImageRecognition/bin
