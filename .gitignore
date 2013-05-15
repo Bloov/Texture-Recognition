@@ -1,3 +1,8 @@
 /*.vsp
 obj
 bin
+/RecognitionSpeedTest/obj
+/RecognitionSpeedTest/bin
+/ImageProcessing/bin
+/TextureRecognition/obj
+/TextureRecognition/bin
