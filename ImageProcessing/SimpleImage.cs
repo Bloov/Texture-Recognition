@@ -100,7 +100,7 @@ namespace ImageProcessing
         private void GrayFilterThread(object parameter)
         {
             GrayFilterThreadParameter input = parameter as GrayFilterThreadParameter;
-            if (parameter == null)
+            if (input == null)
             {
                 throw new ArgumentException("Неправильный формат параметра потока");
             }
@@ -159,21 +159,21 @@ namespace ImageProcessing
         {
             fromX = (fromX < 0) ? (0) : (fromX);
             fromY = (fromY < 0) ? (0) : (fromY);
-            int fwidth = ((toX > Width) ? (Width) : (toX)) - fromX;
-            int fheight = ((toY > Height) ? (Height) : (toY)) - fromY;
-            if ((fwidth <= 0) || (fheight <= 0))
+            toX = (toX > Width) ? (Width) : (toX);
+            toY = (toY > Height) ? (Height) : (toY);
+            if ((fromX >= toX) || (fromY >= toY))
             {
-                throw new ArgumentOutOfRangeException("Неправельный размер фрагмента");
+                throw new ArgumentOutOfRangeException("Неправильный размер фрагмента");
             }
 
-            var data = ExtractGrayData(fromX, fromY, fromX + fwidth, fromY + fheight);
-            return new ImageGrayData(fwidth, fheight, data);
+            var data = ExtractGrayData(fromX, fromY, toX, toY);
+            return new ImageGrayData(data);
         }
 
         public ImageGrayData GetGrayData()
         {
             var data = ExtractGrayData(0, 0, width, height);
-            return new ImageGrayData(width, height, data);
+            return new ImageGrayData(data);
         }
 
         public Bitmap Image

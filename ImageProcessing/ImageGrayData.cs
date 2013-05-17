@@ -10,11 +10,20 @@ namespace ImageProcessing
         int width, height;
         byte[,] data;
 
-        internal ImageGrayData(int width, int height, byte[,] data)
+        internal ImageGrayData(byte[,] data)
         {
-            this.width = width;
-            this.height = height;
+            if (data == null)
+            {
+                throw new ArgumentNullException("Не указаны данные о яркости");
+            }
+
             this.data = data;
+            width = data.GetLength(0);
+            height = data.GetLength(1);
+            if ((width == 0) || (height == 0))
+            {
+                throw new ArgumentException("Недопустимый размер фрагмента");
+            }            
         }
 
         public int Width
