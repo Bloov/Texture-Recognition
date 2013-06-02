@@ -132,12 +132,48 @@ namespace ImageRecognition
 
         public void TeachCompact(List<string> files, List<Bitmap> images)
         {
-            
+            if ((files == null) || (images == null) || (files.Count == 0) || (files.Count != images.Count))
+            {
+                MessageBox.Show("Неправельный набор данных для обучения.");
+                return;
+            }
+
+            isTeachingAborted = false;
+            isTeaching = true;
+            teachProgress = 0;
+            filesToTeach = files;
+            imagesToTeach = images;
+            StartTeachingThreads();
+
+            while (isTeaching)
+            {
+                Thread.Sleep(200);
+            }
+
+            FormsCompact();
         }
 
         public void TeachDischarged(List<string> files, List<Bitmap> images)
         {
+            if ((files == null) || (images == null) || (files.Count == 0) || (files.Count != images.Count))
+            {
+                MessageBox.Show("Неправельный набор данных для обучения.");
+                return;
+            }
+
+            isTeachingAborted = false;
+            isTeaching = true;
+            teachProgress = 0;
+            filesToTeach = files;
+            imagesToTeach = images;
+            StartTeachingThreads(); 
             
+            while (isTeaching)
+            {
+                Thread.Sleep(200);
+            }
+
+            FormsDischarged();
         }
 
         private void StartTeachingThreads()
@@ -209,7 +245,8 @@ namespace ImageRecognition
         internal List<double> GetSortedDistances(TextureSample sample, TextureFeatures feature)
         {
             var list = new List<double>();
-            for (int i = 0; i < featuresCount; ++i)
+            var count = KnownSamplesNumber(feature);
+            for (int i = 0; i < count; ++i)
             {
                 list.Add(GetDistance(sample, i, feature));
             }
@@ -302,12 +339,62 @@ namespace ImageRecognition
             set;
         }
 
-        public int KnownSamplesNumber
+        public int KnownSamplesNumber(TextureFeatures feature)
         {
-            get
+            switch (feature)
             {
-                return featuresCount;
+                case TextureFeatures.GLCM:
+                    return glcmFeatures.Count();
+                case TextureFeatures.LBP:
+                    return lbpFeatures.Count;
+                default:
+                    return 0;
+            }            
+        }
+
+        public GLCMFeature PrepareGLCM(out double average, out double variance)
+        {
+            var gStandart = GLCMFeature.BuildStandart(glcmFeatures);
+            var gDistances = new double[glcmFeatures.Count];
+            for (int i = 0; i < glcmFeatures.Count; ++i)
+            {
+                gDistances[i] = gStandart.GetDistance(glcmFeatures[i]);
             }
+            
+            average = MathHelpers.GetAverage(gDistances, 0, glcmFeatures.Count);
+            variance = MathHelpers.GetVariance(gDistances, average, 0, glcmFeatures.Count);
+
+            return gStandart;
+        }
+
+        public LBPFeature PrepareLBP(out double average, out double variance)
+        {
+            var lStandart = LBPFeature.BuildStandart(lbpFeatures);
+            var lDistances = new double[lbpFeatures.Count];
+
+            for (int i = 0; i < lbpFeatures.Count; ++i)
+            {
+                lDistances[i] = lStandart.GetDistance(lbpFeatures[i]);
+            }
+
+            average = MathHelpers.GetAverage(lDistances, 0, lbpFeatures.Count);
+            variance = MathHelpers.GetVariance(lDistances, average, 0, lbpFeatures.Count);
+
+            return lStandart;
+        }
+
+        public void FormsCompact()
+        {
+            double gAverage, gVariance, lAverage, lVariance;
+            var glcmStandart = PrepareGLCM(out gAverage, out gVariance);
+            var lbpStandart = PrepareLBP(out lAverage, out lVariance);
+        }
+
+        public void FormsDischarged()
+        {
+            double gAverage, gVariance, lAverage, lVariance;
+            var glcmStandart = PrepareGLCM(out gAverage, out gVariance);
+            var lbpStandart = PrepareLBP(out lAverage, out lVariance);
         }
     }
 }

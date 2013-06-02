@@ -38,11 +38,12 @@
             this.btnDischarged = new System.Windows.Forms.Button();
             this.btnCompact = new System.Windows.Forms.Button();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.pbProgress = new System.Windows.Forms.ProgressBar();
-            this.lbOutput = new System.Windows.Forms.ListBox();
             this.lbSamples = new System.Windows.Forms.ListBox();
+            this.lbOutput = new System.Windows.Forms.ListBox();
+            this.pbProgress = new System.Windows.Forms.ProgressBar();
             this.openSample = new System.Windows.Forms.OpenFileDialog();
             this.openImages = new System.Windows.Forms.OpenFileDialog();
+            this.tsmiOptions = new System.Windows.Forms.ToolStripMenuItem();
             this.msMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -56,7 +57,8 @@
             this.msMenu.ImageScalingSize = new System.Drawing.Size(32, 32);
             this.msMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsmiBack,
-            this.tsmiClose});
+            this.tsmiClose,
+            this.tsmiOptions});
             this.msMenu.Location = new System.Drawing.Point(0, 0);
             this.msMenu.Name = "msMenu";
             this.msMenu.Size = new System.Drawing.Size(829, 40);
@@ -195,14 +197,14 @@
             this.splitContainer1.SplitterDistance = 231;
             this.splitContainer1.TabIndex = 9;
             // 
-            // pbProgress
+            // lbSamples
             // 
-            this.pbProgress.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.pbProgress.Location = new System.Drawing.Point(12, 421);
-            this.pbProgress.Name = "pbProgress";
-            this.pbProgress.Size = new System.Drawing.Size(805, 17);
-            this.pbProgress.TabIndex = 10;
+            this.lbSamples.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lbSamples.FormattingEnabled = true;
+            this.lbSamples.Location = new System.Drawing.Point(0, 0);
+            this.lbSamples.Name = "lbSamples";
+            this.lbSamples.Size = new System.Drawing.Size(620, 231);
+            this.lbSamples.TabIndex = 0;
             // 
             // lbOutput
             // 
@@ -213,14 +215,14 @@
             this.lbOutput.Size = new System.Drawing.Size(620, 136);
             this.lbOutput.TabIndex = 0;
             // 
-            // lbSamples
+            // pbProgress
             // 
-            this.lbSamples.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lbSamples.FormattingEnabled = true;
-            this.lbSamples.Location = new System.Drawing.Point(0, 0);
-            this.lbSamples.Name = "lbSamples";
-            this.lbSamples.Size = new System.Drawing.Size(620, 231);
-            this.lbSamples.TabIndex = 0;
+            this.pbProgress.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.pbProgress.Location = new System.Drawing.Point(12, 421);
+            this.pbProgress.Name = "pbProgress";
+            this.pbProgress.Size = new System.Drawing.Size(805, 17);
+            this.pbProgress.TabIndex = 10;
             // 
             // openSample
             // 
@@ -232,6 +234,14 @@
             this.openImages.Filter = "All Images|*.jpg;*.jpeg;*.png;*.bmp|JPG Image|*.jpg;*.jpeg|PNG Image|*.png|BMP Im" +
     "age|*.bmp";
             this.openImages.Multiselect = true;
+            // 
+            // tsmiOptions
+            // 
+            this.tsmiOptions.Image = global::TextureRecognition.resources.settings;
+            this.tsmiOptions.Name = "tsmiOptions";
+            this.tsmiOptions.Size = new System.Drawing.Size(136, 36);
+            this.tsmiOptions.Text = "Параметры";
+            this.tsmiOptions.Click += new System.EventHandler(this.tsmiOptions_Click);
             // 
             // OptimizeTeaching
             // 
@@ -279,5 +289,6 @@
         private System.Windows.Forms.ProgressBar pbProgress;
         private System.Windows.Forms.OpenFileDialog openSample;
         private System.Windows.Forms.OpenFileDialog openImages;
+        private System.Windows.Forms.ToolStripMenuItem tsmiOptions;
     }
 }

@@ -15,6 +15,8 @@ namespace ImageRecognition
         private static byte glcmMaxDisplacementDistance;
         private static int glcmSize;
         private static double glcmDeviationWeight;
+        private static double compactFactor;
+        private static double dischargeFactor;
 
         static RecognitionParameters()
         {
@@ -25,6 +27,8 @@ namespace ImageRecognition
             GLCMMaxDisplacementDistance = 12;
             GLCMSize = 16;
             GLCMDeviationWeight = 0.75;
+            CompactFactor = 0.35;
+            DischargeFactor = 0.35;
         }
 
         public static int NeededNeighborsNumber
@@ -130,6 +134,32 @@ namespace ImageRecognition
             set
             {
                 glcmDeviationWeight = MathHelpers.Clamp(value, 0, 1);
+            }
+        }
+
+        public static double CompactFactor
+        {
+            get
+            {
+                return compactFactor;
+            }
+            set
+            {
+                compactFactor = value;
+                compactFactor = MathHelpers.Clamp(compactFactor, 0.01, 1.0);
+            }
+        }
+
+        public static double DischargeFactor
+        {
+            get
+            {
+                return dischargeFactor;
+            }
+            set
+            {
+                dischargeFactor = value;
+                dischargeFactor = MathHelpers.Clamp(dischargeFactor, 0.01, 1.0);
             }
         }
     }

@@ -91,7 +91,7 @@ namespace TextureRecognition
             imageList.Images.Clear();
             images.Clear();
             
-            for (int i = 0; i < recognition.CurrentClass.KnownSamplesNumber; ++i)
+            for (int i = 0; i < recognition.CurrentClass.KnownSamplesNumber(TextureFeatures.GLCM); ++i)
             {
                 var file = recognition.CurrentClass.GetKnownSample(i);
                 var image = new Bitmap(file);

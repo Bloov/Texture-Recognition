@@ -398,7 +398,7 @@ namespace ImageRecognition
                 int bestClass = GetBestDistance(distancesList, indexesList, classesList, classesFlags);
                 indexesList[bestClass] += 1;
 
-                if (indexesList[bestClass] == knownClasses[bestClass].KnownSamplesNumber)
+                if (indexesList[bestClass] == knownClasses[bestClass].KnownSamplesNumber(feature))
                 {
                     classesFlags.Add(bestClass);
                     if (classesFlags.Count == knownClasses.Count)

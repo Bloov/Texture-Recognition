@@ -59,6 +59,14 @@ namespace TextureRecognition
                 RecognitionParameters.GLCMDeviationWeight = dValue;
                 tbDeviation.Text = RecognitionParameters.GLCMDeviationWeight.ToString("F3");
             }
+            if (double.TryParse(tbCompactFacotor.Text, out dValue))
+            {
+                RecognitionParameters.CompactFactor = dValue;
+            }
+            if (double.TryParse(tbDischargeFactor.Text, out dValue))
+            {
+                RecognitionParameters.DischargeFactor = dValue;
+            }
             Hide();
         }
 
@@ -74,6 +82,8 @@ namespace TextureRecognition
             tbNeighbors.Text = RecognitionParameters.NeededNeighborsNumber.ToString();
             tbDeviation.Text = RecognitionParameters.GLCMDeviationWeight.ToString("F3");
             tbFragmentSize.Text = RecognitionParameters.RecognitionFragmentSize.ToString();
+            tbCompactFacotor.Text = RecognitionParameters.CompactFactor.ToString("F3");
+            tbDischargeFactor.Text = RecognitionParameters.DischargeFactor.ToString("F3");
             tbFragmentSize.SelectAll();
             tbFragmentSize.Focus();
         }

@@ -57,6 +57,12 @@ namespace TextureRecognition
                 MainForm.Instance.Close();
             }
         }
+
+        private void tsmiOptions_Click(object sender, EventArgs e)
+        {
+            RecognitionOptions.Instance.ShowDialog();
+            Focus();
+        }        
         
         private RecognitionSample sample;
         private RecognitionSample workSample;
