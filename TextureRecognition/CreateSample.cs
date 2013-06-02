@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Windows.Forms;
 using ImageRecognition;
 
@@ -153,6 +154,33 @@ namespace TextureRecognition
         private void pbSample_MouseUp(object sender, MouseEventArgs e)
         {
             mousePressed = false;
-        }        
+        }
+
+        private void btnRecognize_Click(object sender, EventArgs e)
+        {
+            btnOpen.Enabled = false;
+            btnRecognize.Enabled = false;
+            btnSave.Enabled = false;
+            btnSelectImage.Enabled = false;
+            msMenu.Enabled = false;
+
+            ThreadPool.QueueUserWorkItem(new WaitCallback(RecognizeProcess));                        
+        } 
+       
+        private void RecognizeProcess(object param)
+        {
+            sample.RecognizeFake();
+            pbSample.Image = sample.GetSampleImage();
+
+            this.BeginInvoke(
+                new Action(delegate()
+                {
+                    btnOpen.Enabled = true;
+                    btnRecognize.Enabled = true;
+                    btnSave.Enabled = true;
+                    btnSelectImage.Enabled = true;
+                    msMenu.Enabled = true;
+                }));            
+        }
     }
 }

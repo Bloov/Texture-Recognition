@@ -40,6 +40,7 @@
             this.saveSample = new System.Windows.Forms.SaveFileDialog();
             this.btnOpen = new System.Windows.Forms.Button();
             this.openSample = new System.Windows.Forms.OpenFileDialog();
+            this.btnRecognize = new System.Windows.Forms.Button();
             this.msMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbSample)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pbTextureClass)).BeginInit();
@@ -116,7 +117,7 @@
             this.btnSave.Location = new System.Drawing.Point(12, 168);
             this.btnSave.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.btnSave.Name = "btnSave";
-            this.btnSave.Size = new System.Drawing.Size(179, 54);
+            this.btnSave.Size = new System.Drawing.Size(143, 54);
             this.btnSave.TabIndex = 4;
             this.btnSave.Text = "Сохранить \r\nпример";
             this.btnSave.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -174,11 +175,23 @@
             // 
             this.openSample.Filter = "Data|*.xml";
             // 
+            // btnRecognize
+            // 
+            this.btnRecognize.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.btnRecognize.Location = new System.Drawing.Point(161, 168);
+            this.btnRecognize.Name = "btnRecognize";
+            this.btnRecognize.Size = new System.Drawing.Size(30, 54);
+            this.btnRecognize.TabIndex = 8;
+            this.btnRecognize.Text = "+";
+            this.btnRecognize.UseVisualStyleBackColor = true;
+            this.btnRecognize.Click += new System.EventHandler(this.btnRecognize_Click);
+            // 
             // CreateSample
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(844, 471);
+            this.Controls.Add(this.btnRecognize);
             this.Controls.Add(this.btnOpen);
             this.Controls.Add(this.pbTextureClass);
             this.Controls.Add(this.lbTextureClasses);
@@ -212,5 +225,6 @@
         private System.Windows.Forms.SaveFileDialog saveSample;
         private System.Windows.Forms.Button btnOpen;
         private System.Windows.Forms.OpenFileDialog openSample;
+        private System.Windows.Forms.Button btnRecognize;
     }
 }

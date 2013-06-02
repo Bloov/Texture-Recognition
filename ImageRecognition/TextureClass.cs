@@ -130,6 +130,16 @@ namespace ImageRecognition
             StartTeachingThreads();            
         }
 
+        public void TeachCompact(List<string> files, List<Bitmap> images)
+        {
+            
+        }
+
+        public void TeachDischarged(List<string> files, List<Bitmap> images)
+        {
+            
+        }
+
         private void StartTeachingThreads()
         {
             int threadCount = Math.Min(imagesToTeach.Count, 2 * Environment.ProcessorCount);

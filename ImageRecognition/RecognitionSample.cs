@@ -133,11 +133,22 @@ namespace ImageRecognition
             }
         }
 
-        public void Recognize()
+        public void RecognizeFake()
         {
             var results = core.RecognizeImage(image);
             sampleResults.Clear();
             sampleResults.AddRange(results);
+            foreach (var result in sampleResults)
+            {
+                result.SetAnswer(TextureFeatures.LBP, result[TextureFeatures.GLCM]);
+            }
+        }
+
+        public void Recognize()
+        {
+            var results = core.RecognizeImage(image);
+            sampleResults.Clear();
+            sampleResults.AddRange(results);            
         }
 
         public Bitmap GetSampleImage()
@@ -202,6 +213,22 @@ namespace ImageRecognition
             get
             {
                 return image.Height;
+            }
+        }
+
+        public string Path
+        {
+            get
+            {
+                return imageFile;
+            }
+        }
+
+        public int Fragments
+        {
+            get
+            {
+                return sampleResults.Count;
             }
         }
     }
