@@ -42,9 +42,9 @@
             this.splitContainer = new System.Windows.Forms.SplitContainer();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.lwImages = new System.Windows.Forms.ListView();
-            this.pbProgress = new System.Windows.Forms.ProgressBar();
-            this.pbImage = new System.Windows.Forms.PictureBox();
             this.lbResult = new System.Windows.Forms.ListBox();
+            this.pbImage = new System.Windows.Forms.PictureBox();
+            this.pbProgress = new System.Windows.Forms.ProgressBar();
             this.msMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
@@ -59,7 +59,7 @@
             // 
             // msMenu
             // 
-            this.msMenu.Font = new System.Drawing.Font("Segoe UI", 14F);
+            this.msMenu.Font = new System.Drawing.Font("Segoe UI", 12F);
             this.msMenu.ImageScalingSize = new System.Drawing.Size(32, 32);
             this.msMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsmiBack,
@@ -74,7 +74,7 @@
             // 
             this.tsmiBack.Image = global::TextureRecognition.resources.back;
             this.tsmiBack.Name = "tsmiBack";
-            this.tsmiBack.Size = new System.Drawing.Size(107, 36);
+            this.tsmiBack.Size = new System.Drawing.Size(97, 36);
             this.tsmiBack.Text = "Назад";
             this.tsmiBack.Click += new System.EventHandler(this.tsmiBack_Click);
             // 
@@ -227,16 +227,16 @@
             this.lwImages.UseCompatibleStateImageBehavior = false;
             this.lwImages.SelectedIndexChanged += new System.EventHandler(this.lwImages_SelectedIndexChanged);
             // 
-            // pbProgress
+            // lbResult
             // 
-            this.pbProgress.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.pbProgress.Location = new System.Drawing.Point(12, 430);
-            this.pbProgress.Maximum = 1000;
-            this.pbProgress.Name = "pbProgress";
-            this.pbProgress.Size = new System.Drawing.Size(580, 15);
-            this.pbProgress.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
-            this.pbProgress.TabIndex = 13;
+            this.lbResult.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.lbResult.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lbResult.FormattingEnabled = true;
+            this.lbResult.Location = new System.Drawing.Point(0, 0);
+            this.lbResult.Name = "lbResult";
+            this.lbResult.SelectionMode = System.Windows.Forms.SelectionMode.None;
+            this.lbResult.Size = new System.Drawing.Size(364, 96);
+            this.lbResult.TabIndex = 1;
             // 
             // pbImage
             // 
@@ -248,16 +248,16 @@
             this.pbImage.TabIndex = 1;
             this.pbImage.TabStop = false;
             // 
-            // lbResult
+            // pbProgress
             // 
-            this.lbResult.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.lbResult.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lbResult.FormattingEnabled = true;
-            this.lbResult.Location = new System.Drawing.Point(0, 0);
-            this.lbResult.Name = "lbResult";
-            this.lbResult.SelectionMode = System.Windows.Forms.SelectionMode.None;
-            this.lbResult.Size = new System.Drawing.Size(364, 96);
-            this.lbResult.TabIndex = 1;
+            this.pbProgress.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.pbProgress.Location = new System.Drawing.Point(12, 430);
+            this.pbProgress.Maximum = 1000;
+            this.pbProgress.Name = "pbProgress";
+            this.pbProgress.Size = new System.Drawing.Size(580, 15);
+            this.pbProgress.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
+            this.pbProgress.TabIndex = 13;
             // 
             // BatchProcessing
             // 

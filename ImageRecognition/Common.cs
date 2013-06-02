@@ -71,7 +71,8 @@ namespace ImageRecognition
             attribute.Value = region.Height.ToString();
             regionElement.Attributes.Append(attribute);
 
-            element.AppendChild(regionElement);
+            data.AppendChild(regionElement);
+            element.AppendChild(data);
         }
 
         internal delegate TextureClass GetTextureClassByName(string name);
@@ -106,8 +107,9 @@ namespace ImageRecognition
             }
             set
             {
-                region = value;                
+                region = value;
             }
+        }
 
         public TextureSample Sample
         {

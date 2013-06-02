@@ -22,6 +22,8 @@ namespace TextureRecognition
         private ChangeName changeNameWindow;
         private RecognitionOptions recognitionOptionsWindow;
         private BatchProcessing batchProcessingWindow;
+        private CreateSample createSample;
+        private OptimizeTeaching optimizeTeaching;
         private TextureRecognition recognition;
 
         public MainForm()
@@ -36,6 +38,8 @@ namespace TextureRecognition
             changeNameWindow = new ChangeName();
             recognitionOptionsWindow = new RecognitionOptions();
             batchProcessingWindow = new BatchProcessing();
+            createSample = new CreateSample();
+            optimizeTeaching = new OptimizeTeaching();
 
             recognition = TextureRecognition.Instance;
         }
@@ -94,6 +98,18 @@ namespace TextureRecognition
         private void tsmiRecognition_Click(object sender, EventArgs e)
         {
             recognizeImageWindow.ShowDialog();
+            Focus();
+        }
+
+        private void tsmiCreateSample_Click(object sender, EventArgs e)
+        {
+            createSample.ShowDialog();
+            Focus();
+        }
+
+        private void tsmiOptimizeTeachig_Click(object sender, EventArgs e)
+        {
+            optimizeTeaching.ShowDialog();
             Focus();
         }
     }

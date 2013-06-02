@@ -42,20 +42,24 @@
             this.lblInfo = new System.Windows.Forms.Label();
             this.saveKnowledgesDialog = new System.Windows.Forms.SaveFileDialog();
             this.openKnowledgesDialog = new System.Windows.Forms.OpenFileDialog();
+            this.tsmiOptimize = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiCreateSample = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiOptimizeTeachig = new System.Windows.Forms.ToolStripMenuItem();
             this.msMainMenu.SuspendLayout();
             this.panelInfo.SuspendLayout();
             this.SuspendLayout();
             // 
             // msMainMenu
             // 
-            this.msMainMenu.Font = new System.Drawing.Font("Segoe UI", 14F);
+            this.msMainMenu.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.msMainMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsmiSystem,
             this.tsmiTeaching,
-            this.tsmiRecognition});
+            this.tsmiRecognition,
+            this.tsmiOptimize});
             this.msMainMenu.Location = new System.Drawing.Point(0, 0);
             this.msMainMenu.Name = "msMainMenu";
-            this.msMainMenu.Size = new System.Drawing.Size(584, 33);
+            this.msMainMenu.Size = new System.Drawing.Size(584, 27);
             this.msMainMenu.TabIndex = 3;
             // 
             // tsmiSystem
@@ -67,53 +71,53 @@
             this.tsSeparator,
             this.tsmiExit});
             this.tsmiSystem.Name = "tsmiSystem";
-            this.tsmiSystem.Size = new System.Drawing.Size(97, 29);
+            this.tsmiSystem.Size = new System.Drawing.Size(74, 23);
             this.tsmiSystem.Text = "Система";
             // 
             // tsmiResetKnowledges
             // 
             this.tsmiResetKnowledges.Name = "tsmiResetKnowledges";
-            this.tsmiResetKnowledges.Size = new System.Drawing.Size(243, 30);
+            this.tsmiResetKnowledges.Size = new System.Drawing.Size(193, 24);
             this.tsmiResetKnowledges.Text = "Сбросить знания";
             this.tsmiResetKnowledges.Click += new System.EventHandler(this.tsmiResetKnowledges_Click);
             // 
             // tsmiLoadKnowledges
             // 
             this.tsmiLoadKnowledges.Name = "tsmiLoadKnowledges";
-            this.tsmiLoadKnowledges.Size = new System.Drawing.Size(243, 30);
+            this.tsmiLoadKnowledges.Size = new System.Drawing.Size(193, 24);
             this.tsmiLoadKnowledges.Text = "Загрузить знания";
             this.tsmiLoadKnowledges.Click += new System.EventHandler(this.tsmiLoadKnowledges_Click);
             // 
             // tsmiSaveKnoledges
             // 
             this.tsmiSaveKnoledges.Name = "tsmiSaveKnoledges";
-            this.tsmiSaveKnoledges.Size = new System.Drawing.Size(243, 30);
+            this.tsmiSaveKnoledges.Size = new System.Drawing.Size(193, 24);
             this.tsmiSaveKnoledges.Text = "Сохранить знания";
             this.tsmiSaveKnoledges.Click += new System.EventHandler(this.tsmiSaveKnoledges_Click);
             // 
             // tsSeparator
             // 
             this.tsSeparator.Name = "tsSeparator";
-            this.tsSeparator.Size = new System.Drawing.Size(240, 6);
+            this.tsSeparator.Size = new System.Drawing.Size(190, 6);
             // 
             // tsmiExit
             // 
             this.tsmiExit.Name = "tsmiExit";
-            this.tsmiExit.Size = new System.Drawing.Size(243, 30);
+            this.tsmiExit.Size = new System.Drawing.Size(193, 24);
             this.tsmiExit.Text = "Выход";
             this.tsmiExit.Click += new System.EventHandler(this.tsmiExit_Click);
             // 
             // tsmiTeaching
             // 
             this.tsmiTeaching.Name = "tsmiTeaching";
-            this.tsmiTeaching.Size = new System.Drawing.Size(111, 29);
+            this.tsmiTeaching.Size = new System.Drawing.Size(85, 23);
             this.tsmiTeaching.Text = "Обучение";
             this.tsmiTeaching.Click += new System.EventHandler(this.tsmiTeaching_Click);
             // 
             // tsmiRecognition
             // 
             this.tsmiRecognition.Name = "tsmiRecognition";
-            this.tsmiRecognition.Size = new System.Drawing.Size(158, 29);
+            this.tsmiRecognition.Size = new System.Drawing.Size(117, 23);
             this.tsmiRecognition.Text = "Распознование";
             this.tsmiRecognition.Click += new System.EventHandler(this.tsmiRecognition_Click);
             // 
@@ -121,9 +125,9 @@
             // 
             this.panelInfo.Controls.Add(this.lblInfo);
             this.panelInfo.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panelInfo.Location = new System.Drawing.Point(0, 33);
+            this.panelInfo.Location = new System.Drawing.Point(0, 27);
             this.panelInfo.Name = "panelInfo";
-            this.panelInfo.Size = new System.Drawing.Size(584, 239);
+            this.panelInfo.Size = new System.Drawing.Size(584, 245);
             this.panelInfo.TabIndex = 4;
             // 
             // lblInfo
@@ -133,7 +137,7 @@
             this.lblInfo.Location = new System.Drawing.Point(0, 0);
             this.lblInfo.Margin = new System.Windows.Forms.Padding(8);
             this.lblInfo.Name = "lblInfo";
-            this.lblInfo.Size = new System.Drawing.Size(584, 239);
+            this.lblInfo.Size = new System.Drawing.Size(584, 245);
             this.lblInfo.TabIndex = 1;
             this.lblInfo.Text = resources.GetString("lblInfo.Text");
             this.lblInfo.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -148,6 +152,29 @@
             this.openKnowledgesDialog.DefaultExt = "*.xml";
             this.openKnowledgesDialog.FileName = "openFileDialog1";
             this.openKnowledgesDialog.Filter = "XML Files|*.xml";
+            // 
+            // tsmiOptimize
+            // 
+            this.tsmiOptimize.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmiCreateSample,
+            this.tsmiOptimizeTeachig});
+            this.tsmiOptimize.Name = "tsmiOptimize";
+            this.tsmiOptimize.Size = new System.Drawing.Size(108, 23);
+            this.tsmiOptimize.Text = "Оптимизация";
+            // 
+            // tsmiCreateSample
+            // 
+            this.tsmiCreateSample.Name = "tsmiCreateSample";
+            this.tsmiCreateSample.Size = new System.Drawing.Size(225, 24);
+            this.tsmiCreateSample.Text = "Создание примера";
+            this.tsmiCreateSample.Click += new System.EventHandler(this.tsmiCreateSample_Click);
+            // 
+            // tsmiOptimizeTeachig
+            // 
+            this.tsmiOptimizeTeachig.Name = "tsmiOptimizeTeachig";
+            this.tsmiOptimizeTeachig.Size = new System.Drawing.Size(225, 24);
+            this.tsmiOptimizeTeachig.Text = "Оптимизация выборки";
+            this.tsmiOptimizeTeachig.Click += new System.EventHandler(this.tsmiOptimizeTeachig_Click);
             // 
             // MainForm
             // 
@@ -184,6 +211,9 @@
         private System.Windows.Forms.Label lblInfo;
         private System.Windows.Forms.SaveFileDialog saveKnowledgesDialog;
         private System.Windows.Forms.OpenFileDialog openKnowledgesDialog;
+        private System.Windows.Forms.ToolStripMenuItem tsmiOptimize;
+        private System.Windows.Forms.ToolStripMenuItem tsmiCreateSample;
+        private System.Windows.Forms.ToolStripMenuItem tsmiOptimizeTeachig;
     }
 }
 

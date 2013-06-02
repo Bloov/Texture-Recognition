@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Xml;
 
 namespace ImageRecognition
 {
-    class RecognitionSample
+    public class RecognitionSample
     {
         private RecognitionCore core;
         private string imageFile;
@@ -31,12 +32,35 @@ namespace ImageRecognition
 
         public void SaveSample(string path)
         {
-            
+            var xml = new XmlDocument();
+            xml.CreateProcessingInstruction("xml", @"version=""1.0"" encoding=""WINDOWS-1251""");
+            var sample = xml.CreateElement("sample");
+            var attribute = xml.CreateAttribute("imageFile");
+            attribute.Value = imageFile;
+            sample.Attributes.Append(attribute);
+            foreach (var result in sampleResults)
+            {
+                result.Save(sample, xml);
+            }
+            xml.AppendChild(sample);
+            xml.Save(path);
         }
 
         public void LoadSample(string path)
         {
-            
+            sampleResults.Clear();
+
+            var xml = new XmlDocument();
+            xml.Load(path);
+            var results = xml.GetElementsByTagName("sample");
+            imageFile = results[0].Attributes["imageFile"].Value;                
+            results = xml.GetElementsByTagName("RecognitionResult");
+            foreach (XmlNode item in results)
+            {
+                var result = new RecognitionResult();
+                result.Load(item, core.GetTextureClass);
+                sampleResults.Add(result);                
+            }     
         }        
 
         private RecognitionResult GetAnswer(Rectangle fragment)
@@ -101,6 +125,7 @@ namespace ImageRecognition
                 {
                     sampleAnswer = new RecognitionResult();
                     sampleAnswer.Region = fragment;
+                    sampleResults.Add(sampleAnswer);
                 }
                 var textureClass = core.GetTextureClass(answer);
                 sampleAnswer.SetAnswer(TextureFeatures.GLCM, textureClass);
@@ -110,11 +135,17 @@ namespace ImageRecognition
 
         public void Recognize()
         {
-            
+            var results = core.RecognizeImage(image);
+            sampleResults.Clear();
+            sampleResults.AddRange(results);
         }
 
         public Bitmap GetSampleImage()
         {
+            if (image == null)
+            {
+                image = new Bitmap(imageFile);
+            }
             var result = new Bitmap(image);
             var render = Graphics.FromImage(result);
             int alpha = 50;
@@ -133,11 +164,45 @@ namespace ImageRecognition
             return result;
         }
 
-        public float Compare(RecognitionSample other)
+        public float CompareFeature(RecognitionSample other, TextureFeatures feature)
         {
-            var result = 1.0f;
+            if (other.imageFile != imageFile)
+            {
+                return 0;
+            }
 
-            return result;
+            int fragmentsCount = 0;
+            int fragmentsMathches = 0;
+            foreach (var result in other.sampleResults)
+            {
+                ++fragmentsCount;
+                var mineResult = GetAnswer(result.Region);
+                if (mineResult != null)
+                {
+                    if (mineResult.CompareAnswers(result, feature))
+                    {
+                        ++fragmentsMathches;
+                    }
+                }
+            }
+
+            return fragmentsMathches / (float)fragmentsCount;
+        }
+
+        public int Width
+        {
+            get
+            {
+                return image.Width;
+            }
+        }
+
+        public int Height
+        {
+            get
+            {
+                return image.Height;
+            }
         }
     }
 }
