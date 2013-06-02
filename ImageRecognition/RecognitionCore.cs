@@ -381,8 +381,8 @@ namespace ImageRecognition
         private RecognitionResult GetBestMatch(TextureSample sample, Rectangle region)
         {
             var answer = new RecognitionResult(region, sample);
-            answer.AddAnswer(TextureFeatures.GLCM, GetBestMatchForFeature(sample, TextureFeatures.GLCM));
-            answer.AddAnswer(TextureFeatures.LBP, GetBestMatchForFeature(sample, TextureFeatures.LBP));
+            answer.SetAnswer(TextureFeatures.GLCM, GetBestMatchForFeature(sample, TextureFeatures.GLCM));
+            answer.SetAnswer(TextureFeatures.LBP, GetBestMatchForFeature(sample, TextureFeatures.LBP));
             return answer;
         }
 

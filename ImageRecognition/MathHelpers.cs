@@ -97,7 +97,7 @@ namespace ImageRecognition
             }
         }
 
-        public static double ClampToMax(double value, int max)
+        public static double ClampToMax(double value, double max)
         {
             if (value > max)
             {
