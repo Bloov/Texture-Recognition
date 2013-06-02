@@ -104,7 +104,10 @@ namespace ImageRecognition
             {
                 return region;
             }
-        }
+            set
+            {
+                region = value;                
+            }
 
         public TextureSample Sample
         {
