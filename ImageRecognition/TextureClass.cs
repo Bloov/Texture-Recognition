@@ -367,6 +367,29 @@ namespace ImageRecognition
             return gStandart;
         }
 
+        public List<int> CompactGLCM(GLCMFeature standart, double average, double variance)
+        {
+            var result = new List<int>();
+            var tValue = alglib.studenttdistribution(glcmFeatures.Count - 1, RecognitionParameters.CompactFactor);
+
+            var deviation = Math.Sqrt(variance);
+            for (int i = 0; i < glcmFeatures.Count; ++i)
+            {
+                var value = Math.Abs(standart.GetDistance(glcmFeatures[i]) - average) / deviation;
+                if (value <= tValue)
+                {
+                    result.Add(i);
+                }
+            }
+
+            return result;
+        }
+        
+        public List<int> DischargeGLCM(GLCMFeature standart, double average, double variance)
+        {
+            return null;
+        }
+
         public LBPFeature PrepareLBP(out double average, out double variance)
         {
             var lStandart = LBPFeature.BuildStandart(lbpFeatures);
@@ -383,11 +406,40 @@ namespace ImageRecognition
             return lStandart;
         }
 
+        public List<int> CompactLBP(LBPFeature standart, double average, double variance)
+        {
+            var result = new List<int>();
+            var tValue = alglib.studenttdistribution(lbpFeatures.Count - 1, RecognitionParameters.CompactFactor);
+
+            var deviation = Math.Sqrt(variance);
+            for (int i = 0; i < lbpFeatures.Count; ++i)
+            {
+                var value = Math.Abs(standart.GetDistance(lbpFeatures[i]) - average) / deviation;
+                if (value <= tValue)
+                {
+                    result.Add(i);
+                }
+            }
+
+            return result;
+        }
+
+        public List<int> DischargeLBP(LBPFeature standart, double average, double variance)
+        {
+            return null;
+        }
+
         public void FormsCompact()
         {
             double gAverage, gVariance, lAverage, lVariance;
             var glcmStandart = PrepareGLCM(out gAverage, out gVariance);
             var lbpStandart = PrepareLBP(out lAverage, out lVariance);
+
+            var gCopyList = CompactGLCM(glcmStandart, gAverage, gVariance);
+            glcmFeatures = glcmFeatures.FindAll(item => gCopyList.Contains(glcmFeatures.IndexOf(item)));
+
+            var lCopyList = CompactLBP(lbpStandart, lAverage, lVariance);
+            lbpFeatures = lbpFeatures.FindAll(item => lCopyList.Contains(lbpFeatures.IndexOf(item)));
         }
 
         public void FormsDischarged()
@@ -395,6 +447,12 @@ namespace ImageRecognition
             double gAverage, gVariance, lAverage, lVariance;
             var glcmStandart = PrepareGLCM(out gAverage, out gVariance);
             var lbpStandart = PrepareLBP(out lAverage, out lVariance);
+
+            var gCopyList = DischargeGLCM(glcmStandart, gAverage, gVariance);
+            glcmFeatures = glcmFeatures.FindAll(item => gCopyList.Contains(glcmFeatures.IndexOf(item)));
+
+            var lCopyList = DischargeLBP(lbpStandart, lAverage, lVariance);
+            lbpFeatures = lbpFeatures.FindAll(item => lCopyList.Contains(lbpFeatures.IndexOf(item)));
         }
     }
 }
