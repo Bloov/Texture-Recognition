@@ -387,7 +387,20 @@ namespace ImageRecognition
         
         public List<int> DischargeGLCM(GLCMFeature standart, double average, double variance)
         {
-            return null;
+            var result = new List<int>();
+            var tValue = alglib.studenttdistribution(glcmFeatures.Count - 1, RecognitionParameters.CompactFactor);
+
+            var deviation = Math.Sqrt(variance);
+            for (int i = 0; i < glcmFeatures.Count; ++i)
+            {
+                var value = Math.Abs(standart.GetDistance(glcmFeatures[i]) - average) / deviation;
+                if (value > tValue)
+                {
+                    result.Add(i);
+                }
+            }
+
+            return result;
         }
 
         public LBPFeature PrepareLBP(out double average, out double variance)
@@ -426,7 +439,20 @@ namespace ImageRecognition
 
         public List<int> DischargeLBP(LBPFeature standart, double average, double variance)
         {
-            return null;
+            var result = new List<int>();
+            var tValue = alglib.studenttdistribution(lbpFeatures.Count - 1, RecognitionParameters.CompactFactor);
+
+            var deviation = Math.Sqrt(variance);
+            for (int i = 0; i < lbpFeatures.Count; ++i)
+            {
+                var value = Math.Abs(standart.GetDistance(lbpFeatures[i]) - average) / deviation;
+                if (value > tValue)
+                {
+                    result.Add(i);
+                }
+            }
+
+            return result;
         }
 
         public void FormsCompact()

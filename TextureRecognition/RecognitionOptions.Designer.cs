@@ -118,6 +118,7 @@
             // 
             this.btnApply.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnApply.AutoSize = true;
+            this.btnApply.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.btnApply.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.btnApply.Image = global::TextureRecognition.resources.check;
             this.btnApply.Location = new System.Drawing.Point(446, 379);
@@ -133,6 +134,7 @@
             // 
             this.btnDecline.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btnDecline.AutoSize = true;
+            this.btnDecline.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.btnDecline.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.btnDecline.Image = global::TextureRecognition.resources.cancel;
             this.btnDecline.Location = new System.Drawing.Point(12, 379);
@@ -207,7 +209,7 @@
             this.Controls.Add(this.lblFragmentSize);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.MinimumSize = new System.Drawing.Size(0, 394);
+            this.MinimumSize = new System.Drawing.Size(16, 394);
             this.Name = "RecognitionOptions";
             this.Text = "Настройки параметров распознавания";
             this.VisibleChanged += new System.EventHandler(this.RecognitionOptions_VisibleChanged);

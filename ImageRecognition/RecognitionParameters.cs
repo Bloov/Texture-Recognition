@@ -27,8 +27,8 @@ namespace ImageRecognition
             GLCMMaxDisplacementDistance = 12;
             GLCMSize = 16;
             GLCMDeviationWeight = 0.75;
-            CompactFactor = 0.35;
-            DischargeFactor = 0.35;
+            CompactFactor = 0.3;
+            DischargeFactor = 0.3;
         }
 
         public static int NeededNeighborsNumber

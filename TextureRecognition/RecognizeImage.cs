@@ -101,11 +101,14 @@ namespace TextureRecognition
 
         private void tsmiOptions_Click(object sender, EventArgs e)
         {
-            RecognitionOptions.Instance.ShowDialog();
+            var result = RecognitionOptions.Instance.ShowDialog();
             Focus();
-            isRecognized = false;
-            btnRecognize.Image = resources.search;
-            btnRecognize.Text = "Распознать\nтекстуры";
+            if (result == System.Windows.Forms.DialogResult.OK)
+            {
+                isRecognized = false;
+                btnRecognize.Image = resources.search;
+                btnRecognize.Text = "Распознать\nтекстуры";
+            }
         }
 
         private void tsmiSaveResult_Click(object sender, EventArgs e)
