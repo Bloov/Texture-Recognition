@@ -46,6 +46,7 @@
             this.pbProgress = new System.Windows.Forms.ProgressBar();
             this.openSample = new System.Windows.Forms.OpenFileDialog();
             this.openImages = new System.Windows.Forms.OpenFileDialog();
+            this.btnAuto = new System.Windows.Forms.Button();
             this.msMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -109,7 +110,7 @@
             this.btnSelectSample.Name = "btnSelectSample";
             this.btnSelectSample.Size = new System.Drawing.Size(137, 54);
             this.btnSelectSample.TabIndex = 3;
-            this.btnSelectSample.Text = "Выбрать \r\nпример";
+            this.btnSelectSample.Text = "Выбрать \r\nпримеры";
             this.btnSelectSample.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.btnSelectSample.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
             this.btnSelectSample.UseVisualStyleBackColor = true;
@@ -273,6 +274,7 @@
             // 
             this.openSample.DefaultExt = "*.xml";
             this.openSample.Filter = "Data|*.xml";
+            this.openSample.Multiselect = true;
             // 
             // openImages
             // 
@@ -280,11 +282,28 @@
     "age|*.bmp";
             this.openImages.Multiselect = true;
             // 
+            // btnAuto
+            // 
+            this.btnAuto.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btnAuto.AutoSize = true;
+            this.btnAuto.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.btnAuto.Location = new System.Drawing.Point(12, 195);
+            this.btnAuto.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.btnAuto.Name = "btnAuto";
+            this.btnAuto.Size = new System.Drawing.Size(137, 26);
+            this.btnAuto.TabIndex = 11;
+            this.btnAuto.Text = "Прогнать автоматич.";
+            this.btnAuto.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnAuto.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
+            this.btnAuto.UseVisualStyleBackColor = true;
+            this.btnAuto.Click += new System.EventHandler(this.btnAuto_Click);
+            // 
             // OptimizeTeaching
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(726, 444);
+            this.Controls.Add(this.btnAuto);
             this.Controls.Add(this.pbProgress);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.btnCompact);
@@ -336,5 +355,6 @@
         private System.Windows.Forms.SplitContainer splitContainer2;
         private System.Windows.Forms.PictureBox pbSample;
         private System.Windows.Forms.PictureBox pbWork;
+        private System.Windows.Forms.Button btnAuto;
     }
 }

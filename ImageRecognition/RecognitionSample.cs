@@ -60,7 +60,9 @@ namespace ImageRecognition
                 var result = new RecognitionResult();
                 result.Load(item, core.GetTextureClass);
                 sampleResults.Add(result);                
-            }     
+            }
+
+            image = new Bitmap(imageFile);
         }        
 
         private RecognitionResult GetAnswer(Rectangle fragment)

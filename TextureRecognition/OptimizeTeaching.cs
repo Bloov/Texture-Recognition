@@ -86,21 +86,35 @@ namespace TextureRecognition
         private RecognitionSample workSampleF;
         
         private List<List<string>> teachingSamples;
+        private List<string> workSamples;
+        private bool complete;
 
         private void btnSelectSample_Click(object sender, EventArgs e)
         {
             if (openSample.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                sample = new RecognitionSample(recognition.Core);
-                sample.LoadSample(openSample.FileName);
-                lbOutput.Items.Add("Загружен пример " + sample.Path + " (блоков: " +
-                    sample.Fragments.ToString() + ")");
-                pbSample.Image = sample.GetSampleImage();
+                workSamples = new List<string>();
+                workSamples.AddRange(openSample.FileNames);
+                lbOutput.Items.Add("Загружено " + workSamples.Count.ToString() + " примеров.");
 
-                coreC = coreD = coreF = null;
-                workSampleC = workSampleD = workSampleF = null;
-                workImageC = workImageD = workImageF = null;
-            }
+                SelectSample(openSample.FileName);                
+            }            
+        }
+
+        private void SelectSample(string file)
+        {
+            sample = new RecognitionSample(recognition.Core);
+            sample.LoadSample(file);
+            this.BeginInvoke(
+               new Action(delegate()
+               {
+                   lbOutput.Items.Add("Загружен пример " + sample.Path + " (блоков: " +
+                       sample.Fragments.ToString() + ")");
+                   pbSample.Image = sample.GetSampleImage();
+               }));              
+
+            workSampleC = workSampleD = workSampleF = null;
+            workImageC = workImageD = workImageF = null;            
         }
 
         private void UpdateClasses()
@@ -335,9 +349,10 @@ namespace TextureRecognition
                 }
             }
 
-            this.BeginInvoke(
+            var iRes = this.BeginInvoke(
                 new Action(delegate()
                 {
+                    lbOutput.Items.Add(currentSample.Path);
                     var result = sample.CompareFeature(currentSample, TextureFeatures.GLCM);
                     lbOutput.Items.Add(pref + " Соответствие GLCM = " + result.ToString());
                     result = sample.CompareFeature(currentSample, TextureFeatures.LBP);
@@ -352,8 +367,81 @@ namespace TextureRecognition
                     cbTextureClass.Enabled = true;
                     btnCompact.Enabled = true;
                     btnDischarged.Enabled = true;
-                    btnFull.Enabled = true;
-                }));    
-        }        
+                    btnFull.Enabled = true;                    
+                }));
+            while (!iRes.IsCompleted)
+            {
+                Thread.Sleep(20);
+            }
+
+            complete = true;
+        }
+
+        private void btnAuto_Click(object sender, EventArgs e)
+        {
+            btnAuto.Enabled = false;
+            ThreadPool.QueueUserWorkItem(new WaitCallback(AutoThread));       
+        }   
+     
+        private void AutoThread(object param)
+        {
+            if (workSamples == null)
+            {
+                return;
+            }
+
+            var factor = 0.2;
+            for (int j = 0; j < 5; ++j)
+            {
+                coreC = coreD = coreF = null;
+                RecognitionParameters.CompactFactor = factor;
+                RecognitionParameters.DischargeFactor = factor;
+                complete = true;
+                for (int i = 0; i < workSamples.Count; ++i)
+                {
+                    SelectSample(workSamples[i]);
+
+                    complete = false;
+                    this.BeginInvoke(
+                       new Action(delegate()
+                       {
+                           btnCompact_Click(null, null);
+                       }));
+                    while (!complete)
+                    {
+                        Thread.Sleep(200);
+                    }
+
+                    complete = false;
+                    this.BeginInvoke(
+                       new Action(delegate()
+                       {
+                           btnDischarged_Click(null, null);
+                       }));
+                    while (!complete)
+                    {
+                        Thread.Sleep(200);
+                    }
+
+                    /*complete = false;
+                    this.BeginInvoke(
+                       new Action(delegate()
+                       {
+                           btnFull_Click(null, null);
+                       }));
+                    while (!complete)
+                    {
+                        Thread.Sleep(200);
+                    }*/
+                }
+
+                factor += 0.05;
+            }
+            this.BeginInvoke(
+               new Action(delegate()
+               {
+                   btnAuto.Enabled = true;                           
+               }));    
+        }
     }
 }
