@@ -161,18 +161,25 @@ namespace ImageRecognition
             }
             var result = new Bitmap(image);
             var render = Graphics.FromImage(result);
-            int alpha = 50;
+            var map = new Dictionary<TextureClass, SolidBrush>();
+            int alpha = 40;            
             foreach (var item in sampleResults)
             {
                 var variant = item[TextureFeatures.GLCM];
-                render.FillRectangle(
-                    new SolidBrush(Color.FromArgb(alpha, variant.RegionColor.R, variant.RegionColor.G, variant.RegionColor.B)),
-                    item.Region);
+                if (!map.ContainsKey(variant))
+                {
+                    map.Add(variant, new SolidBrush(Color.FromArgb(alpha, variant.RegionColor.R, variant.RegionColor.G, variant.RegionColor.B)));
+                }
+                var brush = map[variant];
+                render.FillRectangle(brush, item.Region);
 
                 variant = item[TextureFeatures.LBP];
-                render.FillRectangle(
-                    new SolidBrush(Color.FromArgb(alpha, variant.RegionColor.R, variant.RegionColor.G, variant.RegionColor.B)),
-                    item.Region);
+                if (!map.ContainsKey(variant))
+                {
+                    map.Add(variant, new SolidBrush(Color.FromArgb(alpha, variant.RegionColor.R, variant.RegionColor.G, variant.RegionColor.B)));
+                }
+                brush = map[variant];
+                render.FillRectangle(brush, item.Region);
             }
             return result;
         }

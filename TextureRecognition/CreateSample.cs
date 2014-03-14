@@ -19,6 +19,8 @@ namespace TextureRecognition
 
         private RecognitionSample sample;
         private bool mousePressed;
+        private bool mouseRightPressed;
+        private Point from, to;
 
         public CreateSample()
         {
@@ -90,6 +92,14 @@ namespace TextureRecognition
                 sample.LoadSample(openSample.FileName);
                 pbSample.Image = sample.GetSampleImage();
             }
+
+            lbTextureClasses.Items.Clear();
+            var core = TextureRecognition.Instance.Core;
+            for (int i = 0; i < core.TextureClassCount; ++i)
+            {
+                lbTextureClasses.Items.Add(core.GetTextureClass(i).Name);
+            }
+            lbTextureClasses.SelectedIndex = -1;
         }
 
         private void btnSave_Click(object sender, EventArgs e)
@@ -127,13 +137,16 @@ namespace TextureRecognition
             if (e.Button == System.Windows.Forms.MouseButtons.Left)
             {
                 mousePressed = true;
-                var point = new Point(e.X, e.Y);
                 var textureClass = TextureRecognition.Instance.Core.GetTextureClass(lbTextureClasses.SelectedIndex);
                 if (textureClass != null)
                 {
-                    sample.SetAnswer(TranslatePosition(point), textureClass.Name);
+                    sample.SetAnswer(TranslatePosition(new Point(e.X, e.Y)), textureClass.Name);
                 }
                 pbSample.Image = sample.GetSampleImage();
+            }
+            if (e.Button == System.Windows.Forms.MouseButtons.Right)
+            {
+                from = TranslatePosition(new Point(e.X, e.Y));                
             }
         }
 
@@ -154,6 +167,22 @@ namespace TextureRecognition
         private void pbSample_MouseUp(object sender, MouseEventArgs e)
         {
             mousePressed = false;
+            if (e.Button == System.Windows.Forms.MouseButtons.Right)
+            {
+                to = TranslatePosition(new Point(e.X, e.Y));
+                var textureClass = TextureRecognition.Instance.Core.GetTextureClass(lbTextureClasses.SelectedIndex);
+                if (textureClass != null)
+                {
+                    for (int i = Math.Min(from.X, to.X); i <= Math.Max(from.X, to.X); ++i)
+                    {
+                        for (int j = Math.Min(from.Y, to.Y); j <= Math.Max(from.Y, to.Y); ++j)
+                        {
+                            sample.SetAnswer(new Point(i, j), textureClass.Name);
+                        }
+                    }
+                    pbSample.Image = sample.GetSampleImage();
+                }
+            }
         }
 
         private void btnRecognize_Click(object sender, EventArgs e)

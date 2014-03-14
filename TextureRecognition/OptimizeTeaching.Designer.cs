@@ -47,6 +47,9 @@
             this.openSample = new System.Windows.Forms.OpenFileDialog();
             this.openImages = new System.Windows.Forms.OpenFileDialog();
             this.btnAuto = new System.Windows.Forms.Button();
+            this.cbShowTables = new System.Windows.Forms.CheckBox();
+            this.dgvTable_1 = new System.Windows.Forms.DataGridView();
+            this.dgvTable_2 = new System.Windows.Forms.DataGridView();
             this.msMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -58,6 +61,8 @@
             this.splitContainer2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbSample)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pbWork)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvTable_1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvTable_2)).BeginInit();
             this.SuspendLayout();
             // 
             // msMenu
@@ -70,7 +75,7 @@
             this.tsmiOptions});
             this.msMenu.Location = new System.Drawing.Point(0, 0);
             this.msMenu.Name = "msMenu";
-            this.msMenu.Size = new System.Drawing.Size(726, 40);
+            this.msMenu.Size = new System.Drawing.Size(857, 40);
             this.msMenu.TabIndex = 0;
             this.msMenu.Text = "menuStrip1";
             // 
@@ -147,13 +152,12 @@
             this.btnFull.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btnFull.AutoSize = true;
             this.btnFull.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.btnFull.Image = global::TextureRecognition.resources.search;
-            this.btnFull.Location = new System.Drawing.Point(12, 353);
+            this.btnFull.Location = new System.Drawing.Point(12, 466);
             this.btnFull.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.btnFull.Name = "btnFull";
-            this.btnFull.Size = new System.Drawing.Size(137, 54);
+            this.btnFull.Size = new System.Drawing.Size(137, 23);
             this.btnFull.TabIndex = 6;
-            this.btnFull.Text = "Полная \r\nвыборка";
+            this.btnFull.Text = "Полная выборка";
             this.btnFull.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.btnFull.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
             this.btnFull.UseVisualStyleBackColor = true;
@@ -164,13 +168,12 @@
             this.btnDischarged.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btnDischarged.AutoSize = true;
             this.btnDischarged.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.btnDischarged.Image = global::TextureRecognition.resources.search;
-            this.btnDischarged.Location = new System.Drawing.Point(12, 291);
+            this.btnDischarged.Location = new System.Drawing.Point(12, 435);
             this.btnDischarged.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.btnDischarged.Name = "btnDischarged";
-            this.btnDischarged.Size = new System.Drawing.Size(137, 54);
+            this.btnDischarged.Size = new System.Drawing.Size(137, 23);
             this.btnDischarged.TabIndex = 7;
-            this.btnDischarged.Text = "Разряженная \r\nвыборка";
+            this.btnDischarged.Text = "Разряженная выборка";
             this.btnDischarged.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.btnDischarged.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
             this.btnDischarged.UseVisualStyleBackColor = true;
@@ -181,13 +184,12 @@
             this.btnCompact.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btnCompact.AutoSize = true;
             this.btnCompact.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.btnCompact.Image = global::TextureRecognition.resources.search;
-            this.btnCompact.Location = new System.Drawing.Point(12, 229);
+            this.btnCompact.Location = new System.Drawing.Point(12, 404);
             this.btnCompact.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.btnCompact.Name = "btnCompact";
-            this.btnCompact.Size = new System.Drawing.Size(137, 54);
+            this.btnCompact.Size = new System.Drawing.Size(137, 23);
             this.btnCompact.TabIndex = 8;
-            this.btnCompact.Text = "Компактная \r\nвыборка";
+            this.btnCompact.Text = "Компактная выборка";
             this.btnCompact.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.btnCompact.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
             this.btnCompact.UseVisualStyleBackColor = true;
@@ -209,8 +211,8 @@
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.lbOutput);
-            this.splitContainer1.Size = new System.Drawing.Size(559, 364);
-            this.splitContainer1.SplitterDistance = 226;
+            this.splitContainer1.Size = new System.Drawing.Size(690, 469);
+            this.splitContainer1.SplitterDistance = 291;
             this.splitContainer1.TabIndex = 9;
             // 
             // splitContainer2
@@ -221,13 +223,15 @@
             // 
             // splitContainer2.Panel1
             // 
+            this.splitContainer2.Panel1.Controls.Add(this.dgvTable_1);
             this.splitContainer2.Panel1.Controls.Add(this.pbSample);
             // 
             // splitContainer2.Panel2
             // 
+            this.splitContainer2.Panel2.Controls.Add(this.dgvTable_2);
             this.splitContainer2.Panel2.Controls.Add(this.pbWork);
-            this.splitContainer2.Size = new System.Drawing.Size(559, 226);
-            this.splitContainer2.SplitterDistance = 279;
+            this.splitContainer2.Size = new System.Drawing.Size(690, 291);
+            this.splitContainer2.SplitterDistance = 344;
             this.splitContainer2.TabIndex = 0;
             // 
             // pbSample
@@ -236,7 +240,7 @@
             this.pbSample.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pbSample.Location = new System.Drawing.Point(0, 0);
             this.pbSample.Name = "pbSample";
-            this.pbSample.Size = new System.Drawing.Size(279, 226);
+            this.pbSample.Size = new System.Drawing.Size(344, 291);
             this.pbSample.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pbSample.TabIndex = 0;
             this.pbSample.TabStop = false;
@@ -247,7 +251,7 @@
             this.pbWork.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pbWork.Location = new System.Drawing.Point(0, 0);
             this.pbWork.Name = "pbWork";
-            this.pbWork.Size = new System.Drawing.Size(276, 226);
+            this.pbWork.Size = new System.Drawing.Size(342, 291);
             this.pbWork.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pbWork.TabIndex = 0;
             this.pbWork.TabStop = false;
@@ -258,16 +262,16 @@
             this.lbOutput.FormattingEnabled = true;
             this.lbOutput.Location = new System.Drawing.Point(0, 0);
             this.lbOutput.Name = "lbOutput";
-            this.lbOutput.Size = new System.Drawing.Size(559, 134);
+            this.lbOutput.Size = new System.Drawing.Size(690, 174);
             this.lbOutput.TabIndex = 0;
             // 
             // pbProgress
             // 
             this.pbProgress.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.pbProgress.Location = new System.Drawing.Point(12, 414);
+            this.pbProgress.Location = new System.Drawing.Point(12, 519);
             this.pbProgress.Name = "pbProgress";
-            this.pbProgress.Size = new System.Drawing.Size(702, 17);
+            this.pbProgress.Size = new System.Drawing.Size(833, 17);
             this.pbProgress.TabIndex = 10;
             // 
             // openSample
@@ -287,10 +291,10 @@
             this.btnAuto.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btnAuto.AutoSize = true;
             this.btnAuto.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.btnAuto.Location = new System.Drawing.Point(12, 195);
+            this.btnAuto.Location = new System.Drawing.Point(12, 373);
             this.btnAuto.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.btnAuto.Name = "btnAuto";
-            this.btnAuto.Size = new System.Drawing.Size(137, 26);
+            this.btnAuto.Size = new System.Drawing.Size(137, 23);
             this.btnAuto.TabIndex = 11;
             this.btnAuto.Text = "Прогнать автоматич.";
             this.btnAuto.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -298,11 +302,44 @@
             this.btnAuto.UseVisualStyleBackColor = true;
             this.btnAuto.Click += new System.EventHandler(this.btnAuto_Click);
             // 
+            // cbShowTables
+            // 
+            this.cbShowTables.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.cbShowTables.AutoSize = true;
+            this.cbShowTables.Location = new System.Drawing.Point(12, 496);
+            this.cbShowTables.Name = "cbShowTables";
+            this.cbShowTables.Size = new System.Drawing.Size(121, 17);
+            this.cbShowTables.TabIndex = 12;
+            this.cbShowTables.Text = "Показать таблицы";
+            this.cbShowTables.UseVisualStyleBackColor = true;
+            this.cbShowTables.CheckedChanged += new System.EventHandler(this.cbShowTables_CheckedChanged);
+            // 
+            // dgvTable_1
+            // 
+            this.dgvTable_1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvTable_1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dgvTable_1.Location = new System.Drawing.Point(0, 0);
+            this.dgvTable_1.Name = "dgvTable_1";
+            this.dgvTable_1.Size = new System.Drawing.Size(344, 291);
+            this.dgvTable_1.TabIndex = 1;
+            this.dgvTable_1.Visible = false;
+            // 
+            // dgvTable_2
+            // 
+            this.dgvTable_2.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvTable_2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dgvTable_2.Location = new System.Drawing.Point(0, 0);
+            this.dgvTable_2.Name = "dgvTable_2";
+            this.dgvTable_2.Size = new System.Drawing.Size(342, 291);
+            this.dgvTable_2.TabIndex = 1;
+            this.dgvTable_2.Visible = false;
+            // 
             // OptimizeTeaching
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(726, 444);
+            this.ClientSize = new System.Drawing.Size(857, 549);
+            this.Controls.Add(this.cbShowTables);
             this.Controls.Add(this.btnAuto);
             this.Controls.Add(this.pbProgress);
             this.Controls.Add(this.splitContainer1);
@@ -330,6 +367,8 @@
             this.splitContainer2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pbSample)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pbWork)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvTable_1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvTable_2)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -356,5 +395,8 @@
         private System.Windows.Forms.PictureBox pbSample;
         private System.Windows.Forms.PictureBox pbWork;
         private System.Windows.Forms.Button btnAuto;
+        private System.Windows.Forms.CheckBox cbShowTables;
+        private System.Windows.Forms.DataGridView dgvTable_1;
+        private System.Windows.Forms.DataGridView dgvTable_2;
     }
 }

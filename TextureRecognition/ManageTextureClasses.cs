@@ -131,7 +131,7 @@ namespace TextureRecognition
                 UpdateClassesList();
                 UpdateColor();
             }
-            catch (TextureClassDuplicateException ex)
+            catch (TextureClassDuplicateException)
             {
                 MessageBox.Show("Текстурный класс с таким именем уже существует. Введите другое имя.");
                 return;

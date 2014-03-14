@@ -66,141 +66,163 @@ namespace TextureRecognition
             if (result == System.Windows.Forms.DialogResult.OK)
             {
                 coreC = coreD = coreF = null;
-                workSampleC = workSampleD = workSampleF = null;
-                workImageC = workImageD = workImageF = null;
+                SampleC = SampleD = SampleF = null;
+                workImage = null;
 
                 lbOutput.Items.Add("Настройки изменены");
                 lbOutput.SelectedIndex = lbOutput.Items.Count - 1;
             }
-        }        
-        
-        private RecognitionSample sample;
-        private Bitmap workImageC;
-        private RecognitionCore coreC;        
-        private RecognitionSample workSampleC;
-        private Bitmap workImageD;
-        private RecognitionCore coreD;  
-        private RecognitionSample workSampleD;
-        private Bitmap workImageF;
-        private RecognitionCore coreF;        
-        private RecognitionSample workSampleF;
-        
-        private List<List<string>> teachingSamples;
-        private List<string> workSamples;
-        private bool complete;
+        }
+
+        private void cbShowTables_CheckedChanged(object sender, EventArgs e)
+        {
+            if (cbShowTables.Checked)
+            {
+                dgvTable_1.Visible = true;
+                dgvTable_2.Visible = true;
+                pbSample.Visible = false;
+                pbWork.Visible = false;
+            }
+            else
+            {
+                dgvTable_1.Visible = false;
+                dgvTable_2.Visible = false;
+                pbSample.Visible = true;
+                pbWork.Visible = true;
+
+                pbSample.Image = sample.GetSampleImage();
+            }
+        }
+
+        private void UpdateClasses()
+        {
+          cbTextureClass.Items.Clear();
+          teachingSamples.Clear();
+          for (int i = 0; i < recognition.Core.TextureClassCount; ++i)
+          {
+            cbTextureClass.Items.Add(recognition.Core.GetTextureClass(i).Name);
+            teachingSamples.Add(new List<string>());
+          }
+          cbTextureClass.SelectedIndex = 0;
+        }
 
         private void btnSelectSample_Click(object sender, EventArgs e)
         {
             if (openSample.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                workSamples = new List<string>();
-                workSamples.AddRange(openSample.FileNames);
-                lbOutput.Items.Add("Загружено " + workSamples.Count.ToString() + " примеров.");
+                Samples = new List<string>();
+                Samples.AddRange(openSample.FileNames);
+                lbOutput.Items.Add("Загружено " + Samples.Count.ToString() + " примеров.");
 
-                SelectSample(openSample.FileName);                
-            }            
+                SelectSample(openSample.FileName);
+            }
         }
 
         private void SelectSample(string file)
         {
-            sample = new RecognitionSample(recognition.Core);
-            sample.LoadSample(file);
-            this.BeginInvoke(
-               new Action(delegate()
-               {
-                   lbOutput.Items.Add("Загружен пример " + sample.Path + " (блоков: " +
-                       sample.Fragments.ToString() + ")");
-                   pbSample.Image = sample.GetSampleImage();
-               }));              
-
-            workSampleC = workSampleD = workSampleF = null;
-            workImageC = workImageD = workImageF = null;            
+          sample = new RecognitionSample(recognition.Core);
+          sample.LoadSample(file);
+          this.BeginInvoke(new Action(InvokeSelectSample));
+          SampleC = SampleD = SampleF = null;
         }
 
-        private void UpdateClasses()
+        private void InvokeSelectSample()
         {
-            cbTextureClass.Items.Clear();
-            teachingSamples.Clear();
-            for (int i = 0; i < recognition.Core.TextureClassCount; ++i)
-            {
-                cbTextureClass.Items.Add(recognition.Core.GetTextureClass(i).Name);
-                teachingSamples.Add(new List<string>());
-            }
-            cbTextureClass.SelectedIndex = 0;
+          lbOutput.Items.Add("Загружен пример " + sample.Path + " (блоков: " + sample.Fragments.ToString() + ")");
+          if (pbSample.Visible)
+          {
+            pbSample.Image = sample.GetSampleImage();
+          }
         }
 
         private void btnSelectSamples_Click(object sender, EventArgs e)
         {
-            if (openImages.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-            {
-                var index = cbTextureClass.SelectedIndex;
-                teachingSamples[index].Clear();
-                teachingSamples[index].AddRange(openImages.FileNames);
-                lbOutput.Items.Add("Добавлено " + teachingSamples[index].Count + " примеров в класс " +
-                    recognition.Core.GetTextureClass(index).Name);
+          if (openImages.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+          {
+            var index = cbTextureClass.SelectedIndex;
+            teachingSamples[index].Clear();
+            teachingSamples[index].AddRange(openImages.FileNames);
+            lbOutput.Items.Add("Добавлено " + teachingSamples[index].Count + " примеров в класс " +
+                recognition.Core.GetTextureClass(index).Name);
 
-                coreC = coreD = coreF = null;
-                workSampleC = workSampleD = workSampleF = null;
-                workImageC = workImageD = workImageF = null;
-            }
+            coreC = coreD = coreF = null;
+            SampleC = SampleD = SampleF = null;
+            workImage = null;
+          }
         }
 
         private void OptimizeTeaching_VisibleChanged(object sender, EventArgs e)
         {
-            UpdateClasses();
+          UpdateClasses();
         }
 
         private List<Bitmap> GetImagesToTeach(List<string> files)
         {
-            var result = new List<Bitmap>();
-            for (int i = 0; i < files.Count; ++i)
-            {
-                result.Add(new Bitmap(files[i]));
-            }
-            return result;
+          var result = new List<Bitmap>();
+          for (int i = 0; i < files.Count; ++i)
+          {
+            result.Add(new Bitmap(files[i]));
+          }
+          return result;
         }
 
         private void btnCompact_Click(object sender, EventArgs e)
         {
-            msMenu.Enabled = false;
-            btnSelectSample.Enabled = false;
-            btnSelectSamples.Enabled = false;
-            cbTextureClass.Enabled = false;
-            btnCompact.Enabled = false;
-            btnDischarged.Enabled = false;
-            btnFull.Enabled = false;
+          msMenu.Enabled = false;
+          btnSelectSample.Enabled = false;
+          btnSelectSamples.Enabled = false;
+          cbTextureClass.Enabled = false;
+          btnCompact.Enabled = false;
+          btnDischarged.Enabled = false;
+          btnFull.Enabled = false;
 
-            lbOutput.Items.Add(" ");
-            ThreadPool.QueueUserWorkItem(new WaitCallback(RecognizeThread), 2);
+          lbOutput.Items.Add(" ");
+          ThreadPool.QueueUserWorkItem(new WaitCallback(RecognizeThread), 2);
         }
 
         private void btnDischarged_Click(object sender, EventArgs e)
         {
-            msMenu.Enabled = false;
-            btnSelectSample.Enabled = false;
-            btnSelectSamples.Enabled = false;
-            cbTextureClass.Enabled = false;
-            btnCompact.Enabled = false;
-            btnDischarged.Enabled = false;
-            btnFull.Enabled = false;
+          msMenu.Enabled = false;
+          btnSelectSample.Enabled = false;
+          btnSelectSamples.Enabled = false;
+          cbTextureClass.Enabled = false;
+          btnCompact.Enabled = false;
+          btnDischarged.Enabled = false;
+          btnFull.Enabled = false;
 
-            lbOutput.Items.Add(" ");
-            ThreadPool.QueueUserWorkItem(new WaitCallback(RecognizeThread), 3);
+          lbOutput.Items.Add(" ");
+          ThreadPool.QueueUserWorkItem(new WaitCallback(RecognizeThread), 3);
         }
 
         private void btnFull_Click(object sender, EventArgs e)
         {
-            msMenu.Enabled = false;
-            btnSelectSample.Enabled = false;
-            btnSelectSamples.Enabled = false;
-            cbTextureClass.Enabled = false;
-            btnCompact.Enabled = false;
-            btnDischarged.Enabled = false;
-            btnFull.Enabled = false;
+          msMenu.Enabled = false;
+          btnSelectSample.Enabled = false;
+          btnSelectSamples.Enabled = false;
+          cbTextureClass.Enabled = false;
+          btnCompact.Enabled = false;
+          btnDischarged.Enabled = false;
+          btnFull.Enabled = false;
 
-            lbOutput.Items.Add(" ");
-            ThreadPool.QueueUserWorkItem(new WaitCallback(RecognizeThread), 1);       
+          lbOutput.Items.Add(" ");
+          ThreadPool.QueueUserWorkItem(new WaitCallback(RecognizeThread), 1);
         }
+
+        private void btnAuto_Click(object sender, EventArgs e)
+        {
+          btnAuto.Enabled = false;
+          ThreadPool.QueueUserWorkItem(new WaitCallback(AutoThread));
+        }
+
+        private RecognitionSample sample;        
+        private Bitmap workImage;
+
+        private RecognitionCore coreC, coreD, coreF;        
+        private RecognitionSample SampleC, SampleD, SampleF;
+        
+        private List<List<string>> teachingSamples;
+        private List<string> Samples;
+        private bool complete;                                                       
 
         private void RecognizeThread(object param)
         {
@@ -216,22 +238,22 @@ namespace TextureRecognition
                 case 1:
                     pref = "    (Полная выборка)";
                     core = coreF;
-                    currentSample = workSampleF;
-                    currentImage = workImageF;
+                    currentSample = SampleF;
+                    currentImage = workImage;
                     break;
 
                 case 2:
                     pref = "    (Компактная выборка)";
                     core = coreC;
-                    currentSample = workSampleC;
-                    currentImage = workImageC;
+                    currentSample = SampleC;
+                    currentImage = workImage;
                     break;
 
                 case 3:
                     pref = "    (Разряженная выборка)";
                     core = coreD;
-                    currentSample = workSampleD;
-                    currentImage = workImageD;
+                    currentSample = SampleD;
+                    currentImage = workImage;
                     break;
                 default:
                     break;
@@ -333,16 +355,16 @@ namespace TextureRecognition
                 switch (id)
                 {
                     case 1:
-                        workSampleF = currentSample;
-                        workImageF = currentImage;
+                        SampleF = currentSample;
+                        workImage = currentImage;
                         break;
                     case 2:
-                        workSampleC = currentSample;
-                        workImageC = currentImage;
+                        SampleC = currentSample;
+                        workImage = currentImage;
                         break;
                     case 3:
-                        workSampleD = currentSample;
-                        workImageD = currentImage;
+                        SampleD = currentSample;
+                        workImage = currentImage;
                         break;
                     default:
                         break;
@@ -376,30 +398,39 @@ namespace TextureRecognition
 
             complete = true;
         }
-
-        private void btnAuto_Click(object sender, EventArgs e)
-        {
-            btnAuto.Enabled = false;
-            ThreadPool.QueueUserWorkItem(new WaitCallback(AutoThread));       
-        }   
-     
+            
         private void AutoThread(object param)
         {
-            if (workSamples == null)
+            if (Samples == null)
             {
                 return;
             }
+            
+            for (int i = 0; i < Samples.Count; ++i)
+            {
+                SelectSample(Samples[i]);
+                complete = false;
+                this.BeginInvoke(
+                   new Action(delegate()
+                   {
+                       btnFull_Click(null, null);
+                   }));
+                while (!complete)
+                {
+                    Thread.Sleep(200);
+                }
+            }
 
-            var factor = 0.2;
-            for (int j = 0; j < 5; ++j)
+            var factor = 0.15;
+            for (int j = 0; j < 8; ++j)
             {
                 coreC = coreD = coreF = null;
                 RecognitionParameters.CompactFactor = factor;
                 RecognitionParameters.DischargeFactor = factor;
                 complete = true;
-                for (int i = 0; i < workSamples.Count; ++i)
+                for (int i = 0; i < Samples.Count; ++i)
                 {
-                    SelectSample(workSamples[i]);
+                    SelectSample(Samples[i]);
 
                     complete = false;
                     this.BeginInvoke(

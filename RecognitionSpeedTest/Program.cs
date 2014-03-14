@@ -11,10 +11,10 @@ namespace RecognitionSpeedTest
 {
     class Program
     {
-        private static Stopwatch timer;
+        /*private static Stopwatch timer;
         private static SimpleImage image, subImage;
         private static GLCMCreator glcm;
-        private static LBPCreator lbp;
+        private static LBPCreator lbp;*/
 
         static void Main(string[] args)
         {
